@@ -98,18 +98,30 @@
 }
 
 .facilityTitle {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 800;
   text-align: left;
-  margin: 20px 0 30px;
+  margin: 10px 0 5px;
   color: var(--text-color);
-  letter-spacing: -0.5px;
+  letter-spacing: -1px;
+  line-height: 1.1;
 }
+
 .dateSubtitle {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 300;
   color: var(--gray-dark);
   text-align: left;
-  margin-top: -25px;
-  margin-bottom: 30px;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+@media (min-width: 600px) {
+  .facilityTitle {
+    font-size: 3rem;
+  }
+
+  .dateSubtitle {
+    font-size: 1.5rem;
+  }
 }

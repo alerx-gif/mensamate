@@ -29,8 +29,9 @@ export default async function Home({
   const selectedFacilityId = parseInt(selectedFacilityIdStr, 10);
   const selectedFacility = facilities.find(f => f.id === selectedFacilityId);
 
-  // Get Today's Date in YYYY-MM-DD
-  const today = new Date().toISOString().split('T')[0];
+  // Get Today's Date in YYYY-MM-DD using local timezone
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   let weeklyRota: WeeklyRota | null = null;
 
@@ -42,16 +43,6 @@ export default async function Home({
 
   return (
     <div className={styles.main}>
-      <header className={styles.header}>
-        <div className={styles.titleContainer}>
-          <h1 className={styles.title}>
-            <span className={styles.titleMensa}>Mensa</span>
-            <span className={styles.titleMate}>Mate</span>
-          </h1>
-          <span className={styles.alphaTag}>ALPHA</span>
-        </div>
-      </header>
-
       <RestaurantNavigation facilities={facilities} />
 
       {selectedFacility && (

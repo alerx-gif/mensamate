@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import styles from "./layout.module.css";
 
 export const metadata: Metadata = {
   title: "Mensa Mate",
@@ -14,6 +15,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <nav className={styles.navbar}>
+          <a href="/" className={styles.brand}>
+            <span className={styles.brandMensa}>Mensa</span>
+            <span className={styles.brandMate}>Mate</span>
+          </a>
+          <span className={styles.alphaTag}>ALPHA</span>
+        </nav>
         <main className="container">
           {children}
         </main>
