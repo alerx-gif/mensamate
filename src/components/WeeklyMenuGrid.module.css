@@ -1,0 +1,35 @@
+.container {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    scroll-snap-type: x mandatory;
+}
+
+.dayColumn {
+    min-width: 300px;
+    max-width: 350px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    border-right: 1px solid #eee;
+    padding-right: 1.5rem;
+}
+
+.dayColumn:last-child {
+    border-right: none;
+}
+
+.dayTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #333;
+    position: sticky;
+    left: 0;
+}
+
+.mealsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
