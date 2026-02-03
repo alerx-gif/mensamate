@@ -29,9 +29,8 @@ export default async function Home({
   const selectedFacilityId = parseInt(selectedFacilityIdStr, 10);
   const selectedFacility = facilities.find(f => f.id === selectedFacilityId);
 
-  // Get Today's Date in YYYY-MM-DD using local timezone
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  // Get Today's Date in YYYY-MM-DD using Swiss timezone (works on Vercel)
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Zurich' });
 
   let weeklyRota: WeeklyRota | null = null;
 
