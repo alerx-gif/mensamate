@@ -91,7 +91,16 @@ function extractMealsFromDay(dayData: any): Meal[] {
                     allergens: menu["allergen-array"]?.map((a: any) => ({
                         code: a.code || 0,
                         desc: a.desc || a.name || "Unknown"
-                    })) || []
+                    })) || [],
+                    nutrition: {
+                        energy: menu["energy"] ? parseFloat(menu["energy"]) : undefined,
+                        protein: menu["protein"] ? parseFloat(menu["protein"]) : undefined,
+                        fat: menu["fat"] ? parseFloat(menu["fat"]) : undefined,
+                        saturatedFat: menu["saturated-fatty-acids"] ? parseFloat(menu["saturated-fatty-acids"]) : undefined,
+                        carbohydrates: menu["carbohydrates"] ? parseFloat(menu["carbohydrates"]) : undefined,
+                        sugar: menu["sugar"] ? parseFloat(menu["sugar"]) : undefined,
+                        salt: menu["salt"] ? parseFloat(menu["salt"]) : undefined,
+                    }
                 });
             }
         }

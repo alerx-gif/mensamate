@@ -19,8 +19,8 @@
     border-radius: var(--radius);
     width: 100%;
     max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 70vh;
+    overflow: hidden;
     box-shadow: var(--shadow-md);
     position: relative;
     display: flex;
@@ -69,6 +69,9 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 .header {
@@ -88,6 +91,7 @@
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+    margin-bottom: 12px;
 }
 
 .category {
@@ -190,5 +194,66 @@
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+.nutritionGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    background: var(--background-color);
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.nutritionItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.nutritionValue {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.nutritionLabel {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--gray-dark);
+    text-transform: uppercase;
+}
+
+.scrollIndicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to top, var(--card-bg) 30%, transparent);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 10px;
+    pointer-events: none;
+}
+
+.scrollIndicator span {
+    color: var(--gray-dark);
+    font-size: 0.9rem;
+    animation: bounce 1.5s ease 1;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(5px);
     }
 }

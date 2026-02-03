@@ -56,6 +56,14 @@ export interface MealRaw {
     "image-id"?: number;
     "allergen-array"?: any[];
     "origin-array"?: any[];
+    // Nutritional info
+    "energy"?: string;
+    "protein"?: string;
+    "fat"?: string;
+    "saturated-fatty-acids"?: string;
+    "carbohydrates"?: string;
+    "sugar"?: string;
+    "salt"?: string;
 }
 
 export interface PriceRaw {
@@ -77,6 +85,16 @@ export interface Allergen {
     desc: string;
 }
 
+export interface Nutrition {
+    energy?: number;      // kJ
+    protein?: number;     // g
+    fat?: number;         // g
+    saturatedFat?: number; // g
+    carbohydrates?: number; // g
+    sugar?: number;       // g
+    salt?: number;        // g
+}
+
 export interface Meal {
     id: number;
     label: string;
@@ -87,6 +105,7 @@ export interface Meal {
     type?: string;
     line?: string;
     allergens?: Allergen[];
+    nutrition?: Nutrition;
 }
 
 export interface DayMenu {

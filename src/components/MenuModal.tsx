@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Meal } from '@/types/eth';
 import { getImageUrl } from '@/lib/eth-client';
 import styles from './MenuModal.module.css';
@@ -13,13 +13,27 @@ interface MenuModalProps {
 export default function MenuModal({ meal, onClose }: MenuModalProps) {
     const imageUrl = getImageUrl(meal.imageId);
     const [isVisible, setIsVisible] = useState(false);
+    const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+    const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsVisible(true);
-        // Prevent body scroll when modal is open
         document.body.style.overflow = 'hidden';
+
+        // Check if content is scrollable
+        const checkScroll = () => {
+            if (contentRef.current) {
+                const { scrollHeight, clientHeight, scrollTop } = contentRef.current;
+                setShowScrollIndicator(scrollHeight > clientHeight && scrollTop + clientHeight < scrollHeight - 10);
+            }
+        };
+
+        checkScroll();
+        contentRef.current?.addEventListener('scroll', checkScroll);
+
         return () => {
             document.body.style.overflow = 'unset';
+            contentRef.current?.removeEventListener('scroll', checkScroll);
         };
     }, []);
 
@@ -44,7 +58,7 @@ export default function MenuModal({ meal, onClose }: MenuModalProps) {
                     </div>
                 )}
 
-                <div className={styles.content}>
+                <div className={styles.content} ref={contentRef}>
                     <div className={styles.header}>
                         <div className={styles.metaRow}>
                             {meal.label && <span className={styles.category}>{meal.label}</span>}
@@ -85,7 +99,57 @@ export default function MenuModal({ meal, onClose }: MenuModalProps) {
                             </div>
                         </div>
                     )}
+
+                    {meal.nutrition && (meal.nutrition.energy || meal.nutrition.protein) && (
+                        <div className={styles.section}>
+                            <h4 className={styles.sectionTitle}>Nutrition (per 100g)</h4>
+                            <div className={styles.nutritionGrid}>
+                                {meal.nutrition.energy !== undefined && (
+                                    <div className={styles.nutritionItem}>
+                                        <span className={styles.nutritionValue}>{meal.nutrition.energy}</span>
+                                        <span className={styles.nutritionLabel}>kJ</span>
+                                    </div>
+                                )}
+                                {meal.nutrition.protein !== undefined && (
+                                    <div className={styles.nutritionItem}>
+                                        <span className={styles.nutritionValue}>{meal.nutrition.protein}g</span>
+                                        <span className={styles.nutritionLabel}>Protein</span>
+                                    </div>
+                                )}
+                                {meal.nutrition.carbohydrates !== undefined && (
+                                    <div className={styles.nutritionItem}>
+                                        <span className={styles.nutritionValue}>{meal.nutrition.carbohydrates}g</span>
+                                        <span className={styles.nutritionLabel}>Carbs</span>
+                                    </div>
+                                )}
+                                {meal.nutrition.fat !== undefined && (
+                                    <div className={styles.nutritionItem}>
+                                        <span className={styles.nutritionValue}>{meal.nutrition.fat}g</span>
+                                        <span className={styles.nutritionLabel}>Fat</span>
+                                    </div>
+                                )}
+                                {meal.nutrition.sugar !== undefined && (
+                                    <div className={styles.nutritionItem}>
+                                        <span className={styles.nutritionValue}>{meal.nutrition.sugar}g</span>
+                                        <span className={styles.nutritionLabel}>Sugar</span>
+                                    </div>
+                                )}
+                                {meal.nutrition.salt !== undefined && (
+                                    <div className={styles.nutritionItem}>
+                                        <span className={styles.nutritionValue}>{meal.nutrition.salt}g</span>
+                                        <span className={styles.nutritionLabel}>Salt</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                {showScrollIndicator && (
+                    <div className={styles.scrollIndicator}>
+                        <span>▼</span>
+                    </div>
+                )}
             </div>
         </div>
     );
