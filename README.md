@@ -15,7 +15,3 @@ This project is solo developed and aims to offer a superior user experience comp
 ## Development
 
 This project is built with Next.js.
-
-```bash
-npm run dev
-```

@@ -72,6 +72,11 @@ export interface Price {
     external: number;
 }
 
+export interface Allergen {
+    code: number;
+    desc: string;
+}
+
 export interface Meal {
     id: number;
     label: string;
@@ -81,6 +86,7 @@ export interface Meal {
     imageId?: number;
     type?: string;
     line?: string;
+    allergens?: Allergen[];
 }
 
 export interface DayMenu {

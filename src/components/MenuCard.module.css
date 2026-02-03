@@ -7,6 +7,10 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    cursor: pointer;
 }
 
 .card:hover {
@@ -26,10 +30,17 @@
     object-fit: cover;
 }
 
-.category {
+.tagsContainer {
     position: absolute;
     top: 10px;
     right: 10px;
+    display: flex;
+    gap: 6px;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.category {
     background: rgba(0, 0, 0, 0.7);
     color: white;
     padding: 4px 8px;
@@ -37,6 +48,31 @@
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
+}
+
+.dietaryTag {
+    background: #2ecc71;
+    /* Green */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dietaryTagInline {
+    background: #2ecc71;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-left: 8px;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .content {
@@ -56,12 +92,16 @@
     gap: 10px;
 }
 
+.titleRow {
+    flex: 1;
+    min-width: 150px;
+}
+
 .title {
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0;
-    flex: 1;
-    min-width: 150px;
+    display: inline;
 }
 
 .prices {

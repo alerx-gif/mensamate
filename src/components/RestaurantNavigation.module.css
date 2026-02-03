@@ -1,80 +1,128 @@
 .container {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    margin: 20px 0;
+    gap: 12px;
+    margin: 10px 0 20px 0;
     width: 100%;
 }
 
-.section {
+.tabsScrollContainer {
     width: 100%;
-    margin-bottom: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    padding-bottom: 5px;
 }
 
-.sectionHeader {
+.tabsScrollContainer::-webkit-scrollbar {
+    display: none;
+}
+
+.tabs {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    background: none;
-    border: none;
-    padding: 8px 4px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-color);
-    border-bottom: 2px solid var(--gray-light);
-    margin-bottom: 12px;
-    transition: color 0.2s ease;
-}
-
-.sectionHeader:hover {
-    color: var(--primary-color);
-}
-
-.sectionTitle {
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.chevron {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
+    gap: 8px;
     padding: 0 4px;
 }
 
-.button {
-    background: var(--card-bg);
+.tab {
+    background: transparent;
     border: 1px solid var(--gray-light);
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-weight: 500;
-    color: var(--text-color);
-    text-align: center;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow-sm);
-    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: var(--gray-dark);
     cursor: pointer;
-    width: 100%;
-    white-space: normal;
-    line-height: 1.2;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
 }
 
-.button:hover {
-    transform: translateY(-2px);
+.tab:hover {
+    background: var(--gray-light);
+    color: var(--text-color);
+}
+
+.activeTab {
+    background: var(--text-color);
+    color: white;
+    border-color: var(--text-color);
+}
+
+.activeTab:hover {
+    background: var(--text-color);
+    color: white;
+}
+
+.restaurantList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 4px;
+}
+
+.restaurantButton {
+    background: var(--card-bg);
+    border: 1px solid var(--gray-light);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    flex: 1 1 auto;
+    text-align: center;
+    min-width: 80px;
+    max-width: fit-content;
+}
+
+.restaurantButton:hover {
+    transform: translateY(-1px);
     box-shadow: var(--shadow-md);
     border-color: var(--primary-color);
 }
 
-.active {
+.activeRestaurant {
     background: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
     box-shadow: var(--shadow-md);
+}
+
+.expandButton {
+    background: var(--card-bg);
+    border: 1px solid var(--gray-light);
+    color: var(--text-color);
+    font-size: 1.2rem;
+    font-family: sans-serif;
+    line-height: 1;
+    /* Ensure consistent rendering for characters */
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-left: 8px;
+    /* Gap from the list items if inline, or just consistency */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    min-width: 40px;
+}
+
+.expandButton:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.restaurantListWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }

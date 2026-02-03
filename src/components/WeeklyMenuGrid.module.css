@@ -1,9 +1,53 @@
 .container {
-    display: flex;
-    overflow-x: auto;
-    gap: 1.5rem;
     padding: 1rem 0;
-    scroll-snap-type: x mandatory;
+    width: 100%;
+}
+
+/* Base styles / Desktop default */
+.desktopView {
+    display: none;
+}
+
+.mobileView {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.navigationControls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 0.8rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #eee;
+}
+
+.navButton {
+    background: var(--gray-light);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.navButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dayIndicator {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+}
+
+.mobileDayContent {
+    width: 100%;
 }
 
 .dayColumn {
@@ -24,12 +68,25 @@
     font-weight: 700;
     margin-bottom: 1rem;
     color: #333;
-    position: sticky;
-    left: 0;
 }
 
 .mealsList {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+/* Media Query for Desktop */
+@media (min-width: 768px) {
+    .mobileView {
+        display: none;
+    }
+
+    .desktopView {
+        display: flex;
+        overflow-x: auto;
+        gap: 1.5rem;
+        padding: 1rem 0;
+        scroll-snap-type: x mandatory;
+    }
 }

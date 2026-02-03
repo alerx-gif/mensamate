@@ -12,30 +12,45 @@
 }
 
 .title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   font-size: 3.5rem;
   font-weight: 800;
   letter-spacing: -2px;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   margin-bottom: 10px;
   text-transform: uppercase;
   position: relative;
   z-index: 1;
+  line-height: 0.9;
+}
+
+.titleMensa {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.titleMate {
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .alphaTag {
-  background: #ff4757;
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 700;
+  background: var(--gray-light);
+  color: var(--gray-dark);
+  font-size: 0.6rem;
+  font-weight: 600;
   padding: 2px 6px;
   border-radius: 4px;
-  margin-top: 8px;
+  margin-top: 5px;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 4px rgba(255, 71, 87, 0.3);
-  transform: rotate(5deg);
+  text-transform: uppercase;
+  align-self: center;
 }
 
 .header {
@@ -64,4 +79,37 @@
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 600px) {
+  .title {
+    display: block;
+    line-height: normal;
+  }
+
+  .titleMensa,
+  .titleMate {
+    display: inline;
+  }
+
+  .titleMate {
+    margin-left: 0.3em;
+  }
+}
+
+.facilityTitle {
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: left;
+  margin: 20px 0 30px;
+  color: var(--text-color);
+  letter-spacing: -0.5px;
+}
+.dateSubtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--gray-dark);
+  text-align: left;
+  margin-top: -25px;
+  margin-bottom: 30px;
 }

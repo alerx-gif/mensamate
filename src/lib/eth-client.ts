@@ -87,7 +87,11 @@ function extractMealsFromDay(dayData: any): Meal[] {
                     prices: prices,
                     imageId: imageId,
                     type: menu["meal-class-array"]?.[0]?.desc,
-                    line: line.name
+                    line: line.name,
+                    allergens: menu["allergen-array"]?.map((a: any) => ({
+                        code: a.code || 0,
+                        desc: a.desc || a.name || "Unknown"
+                    })) || []
                 });
             }
         }

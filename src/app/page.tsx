@@ -27,6 +27,7 @@ export default async function Home({
     : (facilities[0]?.id.toString() || '');
 
   const selectedFacilityId = parseInt(selectedFacilityIdStr, 10);
+  const selectedFacility = facilities.find(f => f.id === selectedFacilityId);
 
   // Get Today's Date in YYYY-MM-DD
   const today = new Date().toISOString().split('T')[0];
@@ -43,29 +44,26 @@ export default async function Home({
     <div className={styles.main}>
       <header className={styles.header}>
         <div className={styles.titleContainer}>
-          <h1 className={styles.title}>Mensa Mate</h1>
+          <h1 className={styles.title}>
+            <span className={styles.titleMensa}>Mensa</span>
+            <span className={styles.titleMate}>Mate</span>
+          </h1>
           <span className={styles.alphaTag}>ALPHA</span>
         </div>
-        <p className={styles.subtitle}>Today's Menu Plans ({today})</p>
       </header>
 
       <RestaurantNavigation facilities={facilities} />
 
-      {selectedFacilityId && (
-        <div style={{ textAlign: 'center', margin: '1rem 0' }}>
-          <a href={`/week?facility=${selectedFacilityId}`} style={{
-            display: 'inline-block',
-            padding: '0.5rem 1rem',
-            backgroundColor: '#333',
-            color: 'white',
-            borderRadius: '4px',
-            textDecoration: 'none',
-            fontWeight: 'bold'
-          }}>
-            View Weekly Menu
-          </a>
-        </div>
+      {selectedFacility && (
+        <>
+          <h2 className={styles.facilityTitle}>{selectedFacility.name}</h2>
+          <p className={styles.dateSubtitle}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+        </>
       )}
+
+
 
       {facilities.length === 0 ? (
         <div className={styles.emptyState}>
@@ -84,6 +82,23 @@ export default async function Home({
           {displayedMenus.map((meal, index) => (
             <MenuCard key={meal.id || index} meal={meal} />
           ))}
+        </div>
+      )}
+
+      {selectedFacilityId && (
+        <div style={{ textAlign: 'center', margin: '2rem 0 1rem 0' }}>
+          <a href={`/week?facility=${selectedFacilityId}`} style={{
+            display: 'inline-block',
+            padding: '0.8rem 1.5rem',
+            backgroundColor: 'var(--text-color)',
+            color: 'white',
+            borderRadius: '50px',
+            textDecoration: 'none',
+            fontWeight: '600',
+            boxShadow: 'var(--shadow-sm)'
+          }}>
+            View Weekly Menu
+          </a>
         </div>
       )}
     </div>
