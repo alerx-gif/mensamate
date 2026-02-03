@@ -83,18 +83,7 @@
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     margin-bottom: 8px;
-    flex-wrap: wrap;
-    /* Allow wrapping on small screens */
-    gap: 10px;
-}
-
-.titleRow {
-    flex: 1;
-    min-width: 150px;
 }
 
 .title {
@@ -104,26 +93,22 @@
     display: inline;
 }
 
-.prices {
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-.priceTag {
-    font-weight: 700;
-    color: var(--primary-color);
-    font-size: 0.9rem;
-    background: rgba(255, 107, 107, 0.1);
-    /* Primary color with opacity */
-    padding: 2px 6px;
-    border-radius: 4px;
-    white-space: nowrap;
-}
-
 .description {
     color: var(--gray-dark);
     font-size: 0.9rem;
-    margin-top: auto;
     line-height: 1.4;
+    flex-grow: 1;
+}
+
+.priceDisplay {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--gray-light);
+}
+
+.price {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-color);
+    letter-spacing: -0.5px;
 }

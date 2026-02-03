@@ -14,6 +14,7 @@ export default function MenuModal({ meal, onClose }: MenuModalProps) {
     const imageUrl = getImageUrl(meal.imageId);
     const [isVisible, setIsVisible] = useState(false);
     const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+    const [energyUnit, setEnergyUnit] = useState<'kJ' | 'kcal'>('kJ');
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -74,15 +75,15 @@ export default function MenuModal({ meal, onClose }: MenuModalProps) {
                         <div className={styles.prices}>
                             <div className={styles.priceItem}>
                                 <span className={styles.priceLabel}>Student</span>
-                                <span className={styles.priceValue}>{meal.prices.student.toFixed(2)}</span>
+                                <span className={styles.priceValue}>CHF {meal.prices.student.toFixed(2)}</span>
                             </div>
                             <div className={styles.priceItem}>
                                 <span className={styles.priceLabel}>Staff</span>
-                                <span className={styles.priceValue}>{meal.prices.staff.toFixed(2)}</span>
+                                <span className={styles.priceValue}>CHF {meal.prices.staff.toFixed(2)}</span>
                             </div>
                             <div className={styles.priceItem}>
                                 <span className={styles.priceLabel}>External</span>
-                                <span className={styles.priceValue}>{meal.prices.external.toFixed(2)}</span>
+                                <span className={styles.priceValue}>CHF {meal.prices.external.toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -105,9 +106,17 @@ export default function MenuModal({ meal, onClose }: MenuModalProps) {
                             <h4 className={styles.sectionTitle}>Nutrition (per 100g)</h4>
                             <div className={styles.nutritionGrid}>
                                 {meal.nutrition.energy !== undefined && (
-                                    <div className={styles.nutritionItem}>
-                                        <span className={styles.nutritionValue}>{meal.nutrition.energy}</span>
-                                        <span className={styles.nutritionLabel}>kJ</span>
+                                    <div
+                                        className={`${styles.nutritionItem} ${styles.clickable}`}
+                                        onClick={() => setEnergyUnit(prev => prev === 'kJ' ? 'kcal' : 'kJ')}
+                                        title="Click to toggle kJ/kcal"
+                                    >
+                                        <span className={styles.nutritionValue}>
+                                            {energyUnit === 'kJ'
+                                                ? meal.nutrition.energy
+                                                : Math.round(meal.nutrition.energy / 4.184)}
+                                        </span>
+                                        <span className={styles.nutritionLabel}>{energyUnit}</span>
                                     </div>
                                 )}
                                 {meal.nutrition.protein !== undefined && (

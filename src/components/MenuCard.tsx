@@ -34,16 +34,13 @@ export default function MenuCard({ meal }: MenuCardProps) {
                 )}
                 <div className={styles.content}>
                     <div className={styles.header}>
-                        <div className={styles.titleRow}>
-                            <h3 className={styles.title}>{meal.name}</h3>
-                            {!imageUrl && dietaryLabel && <span className={styles.dietaryTagInline}>{dietaryLabel}</span>}
-                        </div>
-                        <div className={styles.prices}>
-                            <span className={styles.priceTag} title="Student">S: {meal.prices.student.toFixed(2)}</span>
-                            <span className={styles.priceTag} title="Staff">I: {meal.prices.staff.toFixed(2)}</span>
-                        </div>
+                        <h3 className={styles.title}>{meal.name}</h3>
+                        {!imageUrl && dietaryLabel && <span className={styles.dietaryTagInline}>{dietaryLabel}</span>}
                     </div>
                     <p className={styles.description}>{meal.description}</p>
+                    <div className={styles.priceDisplay}>
+                        <span className={styles.price}>CHF {meal.prices.student.toFixed(2)}</span>
+                    </div>
                 </div>
             </article>
 
