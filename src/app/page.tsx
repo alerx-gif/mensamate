@@ -1,6 +1,7 @@
 import { getFacilities, getDailyMenu, getOpeningHours } from '@/lib/eth-client';
 import { Facility, WeeklyRota } from '@/types/eth';
 import MenuCard from '@/components/MenuCard';
+import MenuDisplay from '@/components/MenuDisplay';
 import RestaurantNavigation from '@/components/RestaurantNavigation';
 import FacilityHeader from '@/components/FacilityHeader';
 import styles from './page.module.css';
@@ -47,8 +48,6 @@ export default async function Home({
 
   return (
     <div className={styles.main}>
-      <RestaurantNavigation facilities={facilities} />
-
       {selectedFacility && (
         <FacilityHeader
           facility={selectedFacility}
@@ -56,6 +55,8 @@ export default async function Home({
           dateString={dateString}
         />
       )}
+
+      <RestaurantNavigation facilities={facilities} />
 
 
 
@@ -72,11 +73,7 @@ export default async function Home({
           <p>No menus found for today ({today}) at this location.</p>
         </div>
       ) : (
-        <div className={styles.grid}>
-          {displayedMenus.map((meal, index) => (
-            <MenuCard key={meal.id || index} meal={meal} />
-          ))}
-        </div>
+        <MenuDisplay meals={displayedMenus} />
       )}
 
       {selectedFacilityId && (

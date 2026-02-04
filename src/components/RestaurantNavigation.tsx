@@ -75,14 +75,16 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
 
     const activeList = groupedFacilities[activeLocation] || [];
     const isExpanded = expandedLocations[activeLocation];
-    // Show top 3 or all if expanded
-    const visibleFacilities = isExpanded ? activeList : activeList.slice(0, 3);
-    const hasMore = activeList.length > 3;
+    // Show more items initially if it's a scroll view, maybe show all?
+    // User requested "scroll that goes further than device width", so let's show all by default or a larger subset.
+    // Let's remove the "show more" logic for now and just leverage the scroll view as requested.
+    const visibleFacilities = activeList;
 
     return (
         <div className={styles.container}>
-            <div className={styles.tabsScrollContainer}>
-                <div className={styles.tabs}>
+            {/* Segmented Control for Categories */}
+            <div className={styles.segmentedControlWrapper}>
+                <div className={styles.segmentedControl}>
                     {locations.map(loc => (
                         groupedFacilities[loc] && groupedFacilities[loc].length > 0 && (
                             <button
@@ -97,26 +99,18 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
                 </div>
             </div>
 
-            <div className={styles.restaurantListWrapper}>
-                <div className={styles.restaurantList}>
+            {/* Scrollable Pills for Restaurants */}
+            <div className={styles.scrollWrapper}>
+                <div className={styles.pillContainer}>
                     {visibleFacilities.map((facility) => (
                         <button
                             key={facility.id}
                             onClick={() => selectFacility(facility.id)}
-                            className={`${styles.restaurantButton} ${currentFacilityId === facility.id.toString() ? styles.activeRestaurant : ''}`}
+                            className={`${styles.pill} ${currentFacilityId === facility.id.toString() ? styles.activePill : ''}`}
                         >
                             {facility.shortName || facility.name}
                         </button>
                     ))}
-                    {hasMore && (
-                        <button
-                            className={styles.expandButton}
-                            onClick={() => toggleExpand(activeLocation)}
-                            title={isExpanded ? "Show Less" : "Show More"}
-                        >
-                            {isExpanded ? '−' : '+'}
-                        </button>
-                    )}
                 </div>
             </div>
         </div>

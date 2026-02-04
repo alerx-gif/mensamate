@@ -26,7 +26,7 @@ export default function Navbar() {
                 <span>Mensa</span>
                 <span>Mate</span>
             </Link>
-            <span className={styles.alphaTag}>ALPHA</span>
+            <span className={styles.alphaTag}>Beta</span>
         </nav>
     );
 }

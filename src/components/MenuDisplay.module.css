@@ -1,0 +1,47 @@
+.container {
+    width: 100%;
+}
+
+.controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 32px;
+}
+
+.toggleButton {
+    background: transparent;
+    border: 1px solid var(--gray-light);
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0;
+    /* Hide any fallback text if added later */
+    color: var(--text-color);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggleButton:hover {
+    background: var(--gray-bg);
+}
+
+.toggleButton.active {
+    background: var(--text-color);
+    color: white;
+    border-color: var(--text-color);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

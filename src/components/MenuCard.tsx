@@ -8,9 +8,10 @@ import MenuModal from './MenuModal';
 
 interface MenuCardProps {
     meal: Meal;
+    viewMode?: 'card' | 'list';
 }
 
-export default function MenuCard({ meal }: MenuCardProps) {
+export default function MenuCard({ meal, viewMode = 'card' }: MenuCardProps) {
     const imageUrl = getImageUrl(meal.imageId);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -22,12 +23,18 @@ export default function MenuCard({ meal }: MenuCardProps) {
 
     return (
         <>
-            <article className={styles.card} onClick={() => setIsModalOpen(true)}>
+            <article
+                className={`${styles.card} ${viewMode === 'list' ? styles.cardList : ''}`}
+                onClick={() => setIsModalOpen(true)}
+            >
                 {imageUrl && (
                     <div className={styles.imageWrapper}>
                         <img src={imageUrl} alt={meal.name} className={styles.image} />
                         <div className={styles.tagsContainer}>
-                            {meal.label && <span className={styles.category}>{meal.label}</span>}
+                            {/* Hide category label in list view */}
+                            {viewMode === 'card' && meal.label && (
+                                <span className={styles.category}>{meal.label}</span>
+                            )}
                             {dietaryLabel && <span className={styles.dietaryTag}>{dietaryLabel}</span>}
                         </div>
                     </div>
