@@ -8,6 +8,12 @@
     gap: 10px;
     padding: 12px 20px;
     background: var(--background-color);
+    border-bottom: 1px solid transparent;
+    /* Hidden by default or just remove border if they want clean look until scroll */
+    transition: box-shadow 0.3s ease, border-bottom-color 0.3s ease;
+}
+
+.scrolled {
     border-bottom: 1px solid var(--gray-light);
     box-shadow: var(--shadow-sm);
 }
@@ -21,21 +27,11 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: -1px;
+    color: black;
+    /* Changed to black as requested */
 }
 
-.brandMensa {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.brandMate {
-    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+/* Removed gradient classes as they are no longer needed for the text color */
 
 .alphaTag {
     background: var(--gray-light);

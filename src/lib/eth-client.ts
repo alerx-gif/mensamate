@@ -18,12 +18,33 @@ export async function getFacilities(lang: 'de' | 'en' = 'de'): Promise<Facility[
         if (data["facility-array"]) {
             return data["facility-array"].map(f => {
                 let location = 'Other';
-                const url = f["facility-url"] || '';
+                const facilityUrl = f["facility-url"] || '';
 
-                if (url.includes('/zentrum/')) location = 'Zentrum';
-                else if (url.includes('/hoenggerberg/')) location = 'Hönggerberg';
-                else if (url.includes('/basel/')) location = 'Basel';
-                else if (url.includes('/oerlikon/')) location = 'Oerlikon';
+                if (facilityUrl.includes('/zentrum/')) location = 'Zentrum';
+                else if (facilityUrl.includes('/hoenggerberg/')) location = 'Hönggerberg';
+                else if (facilityUrl.includes('/basel/')) location = 'Basel';
+                else if (facilityUrl.includes('/oerlikon/')) location = 'Oerlikon';
+
+                // Map manager name
+                const managerGiven = (f as any)["manager-given-name"];
+                const managerSurname = (f as any)["manager-surname"];
+                const managerName = managerGiven && managerSurname
+                    ? `${managerGiven} ${managerSurname}`
+                    : undefined;
+
+                // Map payment options
+                const paymentOptions = (f as any)["payment-option-array"]?.map((p: any) => ({
+                    code: p.code,
+                    desc: p.desc,
+                    descShort: p["desc-short"]
+                })) || [];
+
+                // Map features
+                const features = (f as any)["facility-feature-array"]?.map((feat: any) => ({
+                    code: feat.code,
+                    desc: feat.desc,
+                    descShort: feat["desc-short"]
+                })) || [];
 
                 return {
                     id: f["facility-id"],
@@ -32,7 +53,20 @@ export async function getFacilities(lang: 'de' | 'en' = 'de'): Promise<Facility[
                     nameDe: f["facility-name"],
                     nameEn: f["facility-name"],
                     type: f["publication-type-desc"],
-                    location: location
+                    location: location,
+                    // Extended details
+                    building: (f as any).building,
+                    floor: (f as any).floor,
+                    roomNr: (f as any)["room-nr"],
+                    addressLine2: (f as any)["address-line-2"],
+                    addressLine3: (f as any)["address-line-3"],
+                    phone: (f as any).phone,
+                    facilityUrl: facilityUrl || undefined,
+                    catererName: (f as any)["caterer-name"],
+                    catererUrl: (f as any)["caterer-url"],
+                    managerName: managerName,
+                    paymentOptions: paymentOptions,
+                    features: features
                 };
             });
         }
@@ -255,4 +289,83 @@ export async function getWeeklyMenu(
 export function getImageUrl(imageId: number | undefined): string | null {
     if (!imageId) return null;
     return `${API_BASE}/images/${imageId}?client-id=ethz-monitor&lang=de`;
+}
+
+/**
+ * Extract opening hours from a weekly rota for a specific day.
+ */
+export function extractOpeningHours(weeklyRota: WeeklyRota | null, date: string): import('@/types/eth').OpeningHours[] {
+    if (!weeklyRota) return [];
+
+    // We need to fetch raw data to get opening hours, but for now we'll return empty
+    // since WeeklyRota doesn't contain the raw opening hour data
+    return [];
+}
+
+/**
+ * Get opening hours for a facility on a specific day.
+ */
+export async function getOpeningHours(
+    facilityId: number,
+    date: string,
+    lang: 'de' | 'en' = 'de'
+): Promise<import('@/types/eth').OpeningHours[]> {
+    if (!facilityId) return [];
+
+    try {
+        const inputDate = new Date(date);
+        const day = inputDate.getDay();
+        const diff = inputDate.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(inputDate);
+        monday.setDate(diff);
+        const nextMonday = new Date(monday);
+        nextMonday.setDate(monday.getDate() + 7);
+
+        const validAfter = monday.toISOString().split('T')[0];
+        const validBefore = nextMonday.toISOString().split('T')[0];
+
+        const url = `${API_BASE}/weeklyrotas?client-id=${CLIENT_ID}&lang=${lang}&facility=${facilityId}&valid-after=${validAfter}&valid-before=${validBefore}&rs-first=0&rs-size=50`;
+
+        const res = await fetch(url, { next: { revalidate: 60 } });
+        if (!res.ok) return [];
+
+        const text = await res.text();
+        if (!text) return [];
+
+        const data: WeeklyRotaResponseRaw = JSON.parse(text);
+        if (!data["weekly-rota-array"] || data["weekly-rota-array"].length === 0) return [];
+
+        const rawRota = data["weekly-rota-array"][0];
+
+        // Map input date to API day code
+        const dateObj = new Date(date);
+        const jsDay = dateObj.getDay();
+        const apiDayCode = jsDay === 0 ? 7 : jsDay;
+
+        const openingHours: import('@/types/eth').OpeningHours[] = [];
+
+        if (rawRota["day-of-week-array"]) {
+            const dayData = rawRota["day-of-week-array"].find(d => d["day-of-week-code"] === apiDayCode);
+            if (dayData && dayData["opening-hour-array"]) {
+                for (const oh of dayData["opening-hour-array"]) {
+                    const mealTimes = oh["meal-time-array"]?.map(mt => ({
+                        name: mt.name,
+                        timeFrom: mt["time-from"],
+                        timeTo: mt["time-to"]
+                    })) || [];
+
+                    openingHours.push({
+                        timeFrom: oh["time-from"],
+                        timeTo: oh["time-to"],
+                        mealTimes: mealTimes
+                    });
+                }
+            }
+        }
+
+        return openingHours;
+    } catch (error) {
+        console.error('Error fetching opening hours:', error);
+        return [];
+    }
 }

@@ -136,4 +136,39 @@ export interface Facility {
     nameEn: string;
     type: string;
     location: string;
+    // Extended details
+    building?: string;
+    floor?: string;
+    roomNr?: string;
+    addressLine2?: string;
+    addressLine3?: string;
+    phone?: string;
+    facilityUrl?: string;
+    catererName?: string;
+    catererUrl?: string;
+    managerName?: string;
+    paymentOptions?: PaymentOption[];
+    features?: FacilityFeature[];
+}
+
+export interface PaymentOption {
+    code: number;
+    desc: string;
+    descShort: string;
+}
+
+export interface FacilityFeature {
+    code: number;
+    desc: string;
+    descShort: string;
+}
+
+export interface OpeningHours {
+    timeFrom: string;
+    timeTo: string;
+    mealTimes?: {
+        name: string;
+        timeFrom: string;
+        timeTo: string;
+    }[];
 }

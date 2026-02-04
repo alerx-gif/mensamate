@@ -1,7 +1,8 @@
-import { getFacilities, getDailyMenu } from '@/lib/eth-client';
+import { getFacilities, getDailyMenu, getOpeningHours } from '@/lib/eth-client';
 import { Facility, WeeklyRota } from '@/types/eth';
 import MenuCard from '@/components/MenuCard';
 import RestaurantNavigation from '@/components/RestaurantNavigation';
+import FacilityHeader from '@/components/FacilityHeader';
 import styles from './page.module.css';
 
 // Revalidate data every 5 minutes
@@ -22,9 +23,10 @@ export default async function Home({
     return nameA.localeCompare(nameB);
   });
 
+  // Default to Mensa Polyterasse (ID: 9) if no facility is specified
   const selectedFacilityIdStr = typeof resolvedParams.facility === 'string'
     ? resolvedParams.facility
-    : (facilities[0]?.id.toString() || '');
+    : '9';
 
   const selectedFacilityId = parseInt(selectedFacilityIdStr, 10);
   const selectedFacility = facilities.find(f => f.id === selectedFacilityId);
@@ -33,24 +35,26 @@ export default async function Home({
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Zurich' });
 
   let weeklyRota: WeeklyRota | null = null;
+  let openingHours: import('@/types/eth').OpeningHours[] = [];
 
   if (selectedFacilityId) {
     weeklyRota = await getDailyMenu(selectedFacilityId, today);
+    openingHours = await getOpeningHours(selectedFacilityId, today);
   }
 
   const displayedMenus = weeklyRota?.meals || [];
+  const dateString = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
   return (
     <div className={styles.main}>
       <RestaurantNavigation facilities={facilities} />
 
       {selectedFacility && (
-        <>
-          <h2 className={styles.facilityTitle}>{selectedFacility.name}</h2>
-          <p className={styles.dateSubtitle}>
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-          </p>
-        </>
+        <FacilityHeader
+          facility={selectedFacility}
+          openingHours={openingHours}
+          dateString={dateString}
+        />
       )}
 
 
