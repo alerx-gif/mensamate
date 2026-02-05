@@ -26,6 +26,9 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 a {
@@ -37,6 +40,8 @@ a {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  flex: 1;
+  width: 100%;
 }
 
 h1,

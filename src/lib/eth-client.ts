@@ -288,7 +288,9 @@ export async function getWeeklyMenu(
 
 export function getImageUrl(imageId: number | undefined): string | null {
     if (!imageId) return null;
-    return `${API_BASE}/images/${imageId}?client-id=ethz-monitor&lang=de`;
+    const originalUrl = `${API_BASE}/images/${imageId}?client-id=ethz-monitor&lang=de`;
+    // Wrap with wsrv.nl for image optimization (80% quality for mobile)
+    return `https://wsrv.nl/?url=${encodeURIComponent(originalUrl)}&q=80`;
 }
 
 /**

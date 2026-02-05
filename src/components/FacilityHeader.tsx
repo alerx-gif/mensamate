@@ -24,27 +24,70 @@ function getOpeningStatus(openingHours: OpeningHours[] | undefined): { text: str
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-    // Find the relevant opening hour window
+    // Collect all actual service windows (meal times) from all opening hours
+    // The parent opening hours (e.g., 11:15-19:30) are just containers
+    // The real service times are in mealTimes (e.g., Mittag 11:15-13:30, Abend 17:30-19:30)
+    const serviceWindows: { timeFrom: string; timeTo: string; name?: string }[] = [];
+
     for (const oh of openingHours) {
-        const openTime = timeToMinutes(oh.timeFrom);
-        const closeTime = timeToMinutes(oh.timeTo);
+        if (oh.mealTimes && oh.mealTimes.length > 0) {
+            // Use meal times as the actual service windows
+            for (const mt of oh.mealTimes) {
+                serviceWindows.push({
+                    timeFrom: mt.timeFrom,
+                    timeTo: mt.timeTo,
+                    name: mt.name
+                });
+            }
+        } else {
+            // Fallback to parent opening hours if no meal times
+            serviceWindows.push({
+                timeFrom: oh.timeFrom,
+                timeTo: oh.timeTo
+            });
+        }
+    }
+
+    if (serviceWindows.length === 0) return null;
+
+    // Sort service windows by start time
+    const sortedWindows = serviceWindows.sort((a, b) =>
+        timeToMinutes(a.timeFrom) - timeToMinutes(b.timeFrom)
+    );
+
+    // Check each window in order
+    for (let i = 0; i < sortedWindows.length; i++) {
+        const window = sortedWindows[i];
+        const openTime = timeToMinutes(window.timeFrom);
+        const closeTime = timeToMinutes(window.timeTo);
 
         // Before this window opens
         if (currentMinutes < openTime) {
-            return { text: `Opens at ${oh.timeFrom}`, type: 'closed' };
+            return { text: `Opens at ${window.timeFrom}`, type: 'closed' };
         }
 
         // Within this window
         if (currentMinutes >= openTime && currentMinutes < closeTime) {
             const minutesLeft = closeTime - currentMinutes;
             if (minutesLeft <= 15) {
-                return { text: `Closing soon (${oh.timeTo})`, type: 'closing' };
+                return { text: `Closing soon (${window.timeTo})`, type: 'closing' };
             }
-            return { text: `Open until ${oh.timeTo}`, type: 'open' };
+            return { text: `Open until ${window.timeTo}`, type: 'open' };
+        }
+
+        // After this window closes - check if there's a next window today
+        if (i < sortedWindows.length - 1) {
+            const nextWindow = sortedWindows[i + 1];
+            const nextOpenTime = timeToMinutes(nextWindow.timeFrom);
+
+            // We're in the gap between this window and the next
+            if (currentMinutes >= closeTime && currentMinutes < nextOpenTime) {
+                return { text: `Opens at ${nextWindow.timeFrom}`, type: 'closed' };
+            }
         }
     }
 
-    // After all windows have closed - show next day or "Closed"
+    // After all windows have closed
     return { text: 'Closed', type: 'closed' };
 }
 
