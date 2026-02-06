@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import DonationModal from './DonationModal';
 import styles from './Footer.module.css';
 
 export default function Footer() {
@@ -11,6 +12,7 @@ export default function Footer() {
                 </div>
 
                 <div className={styles.links}>
+                    <DonationModal />
                     <a
                         href="https://github.com/alerx-gif/mensamate"
                         target="_blank"
