@@ -1,20 +1,41 @@
-import { getFacilities, getDailyMenu, getOpeningHours } from '@/lib/eth-client';
-import { Facility, WeeklyRota } from '@/types/eth';
-import MenuCard from '@/components/MenuCard';
-import MenuDisplay from '@/components/MenuDisplay';
-import RestaurantNavigation from '@/components/RestaurantNavigation';
-import FacilityHeader from '@/components/FacilityHeader';
+import { Suspense } from 'react';
+import { getFacilities } from '@/lib/eth-client';
+import MenuContent from '@/components/MenuContent';
 import styles from './page.module.css';
 
-// Revalidate data every 5 minutes
-export const revalidate = 300;
+// Revalidate facilities every hour (they rarely change)
+export const revalidate = 3600;
+
+// Loading skeleton for the menu section
+function MenuSkeleton() {
+  return (
+    <div className={styles.skeletonContainer}>
+      {/* Header skeleton */}
+      <div className={styles.headerSkeleton}>
+        <div className={styles.titleSkeleton} />
+        <div className={styles.subtitleSkeleton} />
+      </div>
+
+      {/* Menu skeleton cards */}
+      <div className={styles.menuSkeletons}>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className={styles.cardSkeleton}>
+            <div className={styles.imageSkeleton} />
+            <div className={styles.textSkeleton} />
+            <div className={styles.textSkeletonShort} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const resolvedParams = await searchParams;
+  // Fetch facilities (cached for 1 hour)
   const facilities = await getFacilities();
 
   // Sort facilities alphabetically
@@ -24,73 +45,40 @@ export default async function Home({
     return nameA.localeCompare(nameB);
   });
 
-  // Default to Mensa Polyterasse (ID: 9) if no facility is specified
+  // Get the selected facility from URL params
+  const resolvedParams = await searchParams;
   const selectedFacilityIdStr = typeof resolvedParams.facility === 'string'
     ? resolvedParams.facility
-    : '9';
+    : '9'; // Default to Mensa Polyterrasse (ID: 9)
 
   const selectedFacilityId = parseInt(selectedFacilityIdStr, 10);
   const selectedFacility = facilities.find(f => f.id === selectedFacilityId);
 
-  // Get Today's Date in YYYY-MM-DD using Swiss timezone (works on Vercel)
+  // Get Today's Date in YYYY-MM-DD using Swiss timezone
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Zurich' });
-
-  let weeklyRota: WeeklyRota | null = null;
-  let openingHours: import('@/types/eth').OpeningHours[] = [];
-
-  if (selectedFacilityId) {
-    weeklyRota = await getDailyMenu(selectedFacilityId, today);
-    openingHours = await getOpeningHours(selectedFacilityId, today);
-  }
-
-  const displayedMenus = weeklyRota?.meals || [];
   const dateString = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
   return (
     <div className={styles.main}>
-      {selectedFacility && (
-        <FacilityHeader
-          facility={selectedFacility}
-          openingHours={openingHours}
-          dateString={dateString}
-        />
-      )}
-
-      <RestaurantNavigation facilities={facilities} />
-
-
-
+      {/* Menu Content - Uses SWR for client-side caching */}
       {facilities.length === 0 ? (
         <div className={styles.emptyState}>
           <p>Failed to load restaurants.</p>
         </div>
-      ) : !selectedFacilityId ? (
+      ) : !selectedFacility ? (
         <div className={styles.emptyState}>
           <p>Select a restaurant.</p>
         </div>
-      ) : displayedMenus.length === 0 ? (
-        <div className={styles.emptyState}>
-          <p>No menus found for today ({today}) at this location.</p>
-        </div>
       ) : (
-        <MenuDisplay meals={displayedMenus} />
-      )}
-
-      {selectedFacilityId && (
-        <div style={{ textAlign: 'center', margin: '2rem 0 1rem 0' }}>
-          <a href={`/week?facility=${selectedFacilityId}`} style={{
-            display: 'inline-block',
-            padding: '0.8rem 1.5rem',
-            backgroundColor: 'var(--text-color)',
-            color: 'white',
-            borderRadius: '50px',
-            textDecoration: 'none',
-            fontWeight: '600',
-            boxShadow: 'var(--shadow-sm)'
-          }}>
-            View Weekly Menu
-          </a>
-        </div>
+        <Suspense fallback={<MenuSkeleton />}>
+          <MenuContent
+            facilityId={selectedFacilityId}
+            facility={selectedFacility}
+            today={today}
+            dateString={dateString}
+            facilities={facilities}
+          />
+        </Suspense>
       )}
     </div>
   );

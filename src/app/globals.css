@@ -7,6 +7,7 @@
   --gray-bg: #edeff2;
   --gray-light: #dfe6e9;
   --gray-dark: #636e72;
+  --skeleton-bg: #e0e0e0;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --radius: 12px;

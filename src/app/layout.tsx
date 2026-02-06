@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-
 import Footer from "@/components/Footer";
+import { SWRProvider } from "@/components/SWRProvider";
 
 export const metadata: Metadata = {
   title: "Mensa Mate",
@@ -17,12 +17,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        <main className="container">
-          {children}
-        </main>
-        <Footer />
+        <SWRProvider>
+          <Navbar />
+          <main className="container">
+            {children}
+          </main>
+          <Footer />
+        </SWRProvider>
       </body>
     </html>
   );
 }
+

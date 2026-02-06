@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Facility } from '@/types/eth';
+import { prefetchMenu } from './MenuContent';
 import styles from './RestaurantNavigation.module.css';
 
 interface RestaurantNavigationProps {
@@ -16,6 +17,9 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
     const [expandedLocations, setExpandedLocations] = useState<Record<string, boolean>>({});
 
     const currentFacilityId = searchParams.get('facility') || (facilities[0]?.id.toString() || '');
+
+    // Get today's date for prefetching
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Zurich' });
 
     // Priority lists
     const ZENTRUM_PRIORITY = ['Mensa Polyterrasse', 'Polysnack', 'Archimedes'];
@@ -61,8 +65,13 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
     const selectFacility = (id: number) => {
         const params = new URLSearchParams(searchParams.toString());
         params.set('facility', id.toString());
-        router.push(`/?${params.toString()}`);
+        router.push(`/?${params.toString()}`, { scroll: false });
     };
+
+    // Prefetch menu data on hover
+    const handleMouseEnter = useCallback((facilityId: number) => {
+        prefetchMenu(facilityId, today);
+    }, [today]);
 
     const toggleExpand = (loc: string) => {
         setExpandedLocations(prev => ({
@@ -106,6 +115,8 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
                         <button
                             key={facility.id}
                             onClick={() => selectFacility(facility.id)}
+                            onMouseEnter={() => handleMouseEnter(facility.id)}
+                            onTouchStart={() => handleMouseEnter(facility.id)}
                             className={`${styles.pill} ${currentFacilityId === facility.id.toString() ? styles.activePill : ''}`}
                         >
                             {facility.shortName || facility.name}
@@ -116,3 +127,4 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
         </div>
     );
 }
+

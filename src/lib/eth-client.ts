@@ -289,8 +289,8 @@ export async function getWeeklyMenu(
 export function getImageUrl(imageId: number | undefined): string | null {
     if (!imageId) return null;
     const originalUrl = `${API_BASE}/images/${imageId}?client-id=ethz-monitor&lang=de`;
-    // Wrap with wsrv.nl for image optimization (80% quality for mobile)
-    return `https://wsrv.nl/?url=${encodeURIComponent(originalUrl)}&q=80`;
+    // Wrap with wsrv.nl for image optimization (60% quality for faster mobile loading)
+    return `https://wsrv.nl/?url=${encodeURIComponent(originalUrl)}&q=60`;
 }
 
 /**
@@ -371,3 +371,97 @@ export async function getOpeningHours(
         return [];
     }
 }
+
+/**
+ * Combined fetch for menu and opening hours - avoids duplicate API calls.
+ * Both getDailyMenu and getOpeningHours fetch the same endpoint, so this
+ * consolidates them into a single request for better performance.
+ */
+export async function getDailyMenuAndOpeningHours(
+    facilityId: number,
+    date: string,
+    lang: 'de' | 'en' = 'de'
+): Promise<{ weeklyRota: WeeklyRota | null; openingHours: import('@/types/eth').OpeningHours[] }> {
+    if (!facilityId) return { weeklyRota: null, openingHours: [] };
+
+    try {
+        const inputDate = new Date(date);
+        const day = inputDate.getDay();
+        const diff = inputDate.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(inputDate);
+        monday.setDate(diff);
+        const nextMonday = new Date(monday);
+        nextMonday.setDate(monday.getDate() + 7);
+
+        const validAfter = monday.toISOString().split('T')[0];
+        const validBefore = nextMonday.toISOString().split('T')[0];
+
+        const url = `${API_BASE}/weeklyrotas?client-id=${CLIENT_ID}&lang=${lang}&facility=${facilityId}&valid-after=${validAfter}&valid-before=${validBefore}&rs-first=0&rs-size=50`;
+
+        const res = await fetch(url, { next: { revalidate: 60 } });
+        if (!res.ok) {
+            console.error(`Fetch menu failed for facility ${facilityId}: ${res.status} ${res.statusText}`);
+            return { weeklyRota: null, openingHours: [] };
+        }
+
+        const text = await res.text();
+        if (!text) return { weeklyRota: null, openingHours: [] };
+
+        const data: WeeklyRotaResponseRaw = JSON.parse(text);
+
+        if (!data["weekly-rota-array"] || data["weekly-rota-array"].length === 0) {
+            return { weeklyRota: null, openingHours: [] };
+        }
+
+        const rawRota = data["weekly-rota-array"][0];
+
+        // Map input date to API day code (1=Mon, ..., 7=Sun)
+        const dateObj = new Date(date);
+        const jsDay = dateObj.getDay();
+        const apiDayCode = jsDay === 0 ? 7 : jsDay;
+
+        let meals: Meal[] = [];
+        let dayOfWeekName = "Day";
+        const openingHours: import('@/types/eth').OpeningHours[] = [];
+
+        if (rawRota["day-of-week-array"]) {
+            const dayData = rawRota["day-of-week-array"].find(d => d["day-of-week-code"] === apiDayCode);
+
+            if (dayData) {
+                dayOfWeekName = dayData["day-of-week-desc"] || "Day";
+                meals = extractMealsFromDay(dayData);
+
+                // Extract opening hours from the same day data
+                if (dayData["opening-hour-array"]) {
+                    for (const oh of dayData["opening-hour-array"]) {
+                        const mealTimes = oh["meal-time-array"]?.map(mt => ({
+                            name: mt.name,
+                            timeFrom: mt["time-from"],
+                            timeTo: mt["time-to"]
+                        })) || [];
+
+                        openingHours.push({
+                            timeFrom: oh["time-from"],
+                            timeTo: oh["time-to"],
+                            mealTimes: mealTimes
+                        });
+                    }
+                }
+            }
+        }
+
+        const weeklyRota: WeeklyRota = {
+            id: rawRota["weekly-rota-id"],
+            facilityId: rawRota["facility-id"],
+            validFrom: rawRota["valid-from"],
+            dayOfWeek: dayOfWeekName,
+            meals: meals
+        };
+
+        return { weeklyRota, openingHours };
+    } catch (error) {
+        console.error('Error fetching daily menu and opening hours:', error);
+        return { weeklyRota: null, openingHours: [] };
+    }
+}
+
