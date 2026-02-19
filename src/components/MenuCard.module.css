@@ -1,16 +1,28 @@
+@keyframes cardEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 .card {
     background: var(--card-bg);
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: var(--shadow-sm);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 100%;
-    /* max-width removed here to allow cardList to expand, but kept for default card behavior via specificity or parent grid */
     margin: 0 auto;
     cursor: pointer;
+    animation: cardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Ensure default card behavior in grid */
@@ -18,9 +30,11 @@
     max-width: 400px;
 }
 
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
+@media (hover: hover) {
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+    }
 }
 
 .imageWrapper {
@@ -35,6 +49,13 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) {
+    .card:hover .image {
+        transform: scale(1.05);
+    }
 }
 
 .tagsContainer {

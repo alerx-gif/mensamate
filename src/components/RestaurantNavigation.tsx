@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Facility } from '@/types/eth';
 import styles from './RestaurantNavigation.module.css';
 
@@ -10,7 +11,6 @@ interface RestaurantNavigationProps {
 }
 
 export default function RestaurantNavigation({ facilities }: RestaurantNavigationProps) {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const [activeLocation, setActiveLocation] = useState<string>('Zentrum');
     const [expandedLocations, setExpandedLocations] = useState<Record<string, boolean>>({});
@@ -58,10 +58,10 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
     // Define section order
     const locations = ['Zentrum', 'Hönggerberg', 'Oerlikon', 'Other'];
 
-    const selectFacility = (id: number) => {
+    const getFacilityUrl = (id: number) => {
         const params = new URLSearchParams(searchParams.toString());
         params.set('facility', id.toString());
-        router.push(`/?${params.toString()}`);
+        return `/?${params.toString()}`;
     };
 
     const toggleExpand = (loc: string) => {
@@ -103,13 +103,15 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
             <div className={styles.scrollWrapper}>
                 <div className={styles.pillContainer}>
                     {visibleFacilities.map((facility) => (
-                        <button
+                        <Link
                             key={facility.id}
-                            onClick={() => selectFacility(facility.id)}
+                            href={getFacilityUrl(facility.id)}
+                            prefetch={true}
                             className={`${styles.pill} ${currentFacilityId === facility.id.toString() ? styles.activePill : ''}`}
+                            style={{ textDecoration: 'none' }}
                         >
                             {facility.shortName || facility.name}
-                        </button>
+                        </Link>
                     ))}
                 </div>
             </div>

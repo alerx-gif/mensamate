@@ -48,6 +48,10 @@
     color: var(--text-color);
 }
 
+.tab:active {
+    transform: scale(0.95);
+}
+
 .activeTab {
     background: white;
     /* Active state highlights */
@@ -103,6 +107,10 @@
 .pill:hover {
     background: var(--gray-bg);
     transform: translateY(-1px);
+}
+
+.pill:active {
+    transform: scale(0.95);
 }
 
 .activePill {

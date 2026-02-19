@@ -1,9 +1,10 @@
-import { getFacilities, getDailyMenu, getOpeningHours } from '@/lib/eth-client';
-import { Facility, WeeklyRota } from '@/types/eth';
-import MenuCard from '@/components/MenuCard';
-import MenuDisplay from '@/components/MenuDisplay';
+import { Suspense } from 'react';
+import { getFacilities } from '@/lib/eth-client';
 import RestaurantNavigation from '@/components/RestaurantNavigation';
+import FacilityContent from '@/components/FacilityContent';
+import ContentSkeleton from '@/components/ContentSkeleton';
 import FacilityHeader from '@/components/FacilityHeader';
+import AsyncFacilityHeader from '@/components/AsyncFacilityHeader';
 import styles from './page.module.css';
 
 // Revalidate data every 5 minutes
@@ -32,65 +33,35 @@ export default async function Home({
   const selectedFacilityId = parseInt(selectedFacilityIdStr, 10);
   const selectedFacility = facilities.find(f => f.id === selectedFacilityId);
 
-  // Get Today's Date in YYYY-MM-DD using Swiss timezone (works on Vercel)
+  // Get Today's Date in YYYY-MM-DD using Swiss timezone
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Zurich' });
-
-  let weeklyRota: WeeklyRota | null = null;
-  let openingHours: import('@/types/eth').OpeningHours[] = [];
-
-  if (selectedFacilityId) {
-    weeklyRota = await getDailyMenu(selectedFacilityId, today);
-    openingHours = await getOpeningHours(selectedFacilityId, today);
-  }
-
-  const displayedMenus = weeklyRota?.meals || [];
-  const dateString = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const dateString = new Date().toLocaleDateString('en-US', { timeZone: 'Europe/Zurich', weekday: 'short', month: 'short', day: 'numeric' });
 
   return (
     <div className={styles.main}>
-      {selectedFacility && (
-        <FacilityHeader
-          facility={selectedFacility}
-          openingHours={openingHours}
-          dateString={dateString}
-        />
-      )}
-
-      <RestaurantNavigation facilities={facilities} />
-
-
-
       {facilities.length === 0 ? (
         <div className={styles.emptyState}>
           <p>Failed to load restaurants.</p>
         </div>
-      ) : !selectedFacilityId ? (
+      ) : !selectedFacility ? (
         <div className={styles.emptyState}>
           <p>Select a restaurant.</p>
         </div>
-      ) : displayedMenus.length === 0 ? (
-        <div className={styles.emptyState}>
-          <p>No menus found for today ({today}) at this location.</p>
-        </div>
       ) : (
-        <MenuDisplay meals={displayedMenus} />
-      )}
+        <>
+          <Suspense
+            key={`header-${selectedFacility.id}`}
+            fallback={<FacilityHeader facility={selectedFacility} dateString={dateString} />}
+          >
+            <AsyncFacilityHeader facility={selectedFacility} today={today} dateString={dateString} />
+          </Suspense>
 
-      {selectedFacilityId && (
-        <div style={{ textAlign: 'center', margin: '2rem 0 1rem 0' }}>
-          <a href={`/week?facility=${selectedFacilityId}`} style={{
-            display: 'inline-block',
-            padding: '0.8rem 1.5rem',
-            backgroundColor: 'var(--text-color)',
-            color: 'white',
-            borderRadius: '50px',
-            textDecoration: 'none',
-            fontWeight: '600',
-            boxShadow: 'var(--shadow-sm)'
-          }}>
-            View Weekly Menu
-          </a>
-        </div>
+          <RestaurantNavigation facilities={facilities} />
+
+          <Suspense key={`content-${selectedFacility.id}`} fallback={<ContentSkeleton />}>
+            <FacilityContent selectedFacility={selectedFacility} today={today} />
+          </Suspense>
+        </>
       )}
     </div>
   );

@@ -9,9 +9,10 @@ import MenuModal from './MenuModal';
 interface MenuCardProps {
     meal: Meal;
     viewMode?: 'card' | 'list';
+    index?: number;
 }
 
-export default function MenuCard({ meal, viewMode = 'card' }: MenuCardProps) {
+export default function MenuCard({ meal, viewMode = 'card', index = 0 }: MenuCardProps) {
     const imageUrl = getImageUrl(meal.imageId);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -25,6 +26,7 @@ export default function MenuCard({ meal, viewMode = 'card' }: MenuCardProps) {
         <>
             <article
                 className={`${styles.card} ${viewMode === 'list' ? styles.cardList : ''}`}
+                style={{ animationDelay: `${index * 0.08}s` }}
                 onClick={() => setIsModalOpen(true)}
             >
                 {imageUrl && (

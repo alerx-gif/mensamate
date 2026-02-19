@@ -1,3 +1,15 @@
+@keyframes headerFade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .titleButton {
     background: none;
     border: none;
@@ -6,6 +18,7 @@
     text-align: left;
     width: auto;
     display: inline-block;
+    animation: headerFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .titleButton:hover .facilityTitle {
@@ -46,6 +59,7 @@
     text-align: left;
     margin-top: 0;
     margin-bottom: 25px;
+    animation: headerFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
 }
 
 @media (min-width: 600px) {

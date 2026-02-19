@@ -49,6 +49,7 @@ export default function MenuDisplay({ meals }: MenuDisplayProps) {
                         key={meal.id || index}
                         meal={meal}
                         viewMode={viewMode}
+                        index={index}
                     />
                 ))}
             </div>
