@@ -4,7 +4,7 @@ Mensa Mate is a small project designed to provide a better, more feature-rich ex
 
 ## About
 
-This project is solo developed and aims to offer a superior user experience compared to existing tools. It is currently in **ALPHA** and will receive continuous updates and improvements.
+This project is solo developed and aims to offer a superior user experience compared to existing tools. 
 
 ## Features
 
