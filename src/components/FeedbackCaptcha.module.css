@@ -1,0 +1,141 @@
+.button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.button:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    background: var(--card-bg, #ffffff);
+    padding: 2rem;
+    border-radius: var(--radius, 12px);
+    box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+    max-width: 400px;
+    width: 90%;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.title {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    color: var(--text-color, #2d3436);
+}
+
+.description {
+    margin-bottom: 1.5rem;
+    color: var(--gray-dark, #636e72);
+    font-size: 0.95rem;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.captchaQuestion {
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 1rem;
+    background-color: var(--gray-bg, #edeff2);
+    border-radius: var(--radius, 12px);
+    color: var(--text-color, #2d3436);
+}
+
+.input {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gray-light, #dfe6e9);
+    border-radius: var(--radius, 12px);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input:focus {
+    border-color: var(--primary-color, #ff6b6b);
+}
+
+.inputError {
+    border-color: #ff4757;
+}
+
+.errorMessage {
+    color: #ff4757;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.cancelButton,
+.submitButton {
+    padding: 0.5rem 1rem;
+    border-radius: calc(var(--radius, 12px) - 4px);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancelButton {
+    background: transparent;
+    border: 1px solid var(--gray-light, #dfe6e9);
+    color: var(--text-color, #2d3436);
+}
+
+.cancelButton:hover {
+    background: var(--gray-bg, #edeff2);
+}
+
+.submitButton {
+    background: var(--primary-color, #ff6b6b);
+    border: none;
+    color: white;
+}
+
+.submitButton:hover {
+    filter: brightness(0.9);
+}
