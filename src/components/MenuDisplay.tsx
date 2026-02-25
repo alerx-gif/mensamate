@@ -1,16 +1,72 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Meal } from '@/types/eth';
 import MenuCard from './MenuCard';
 import styles from './MenuDisplay.module.css';
 
 interface MenuDisplayProps {
     meals: Meal[];
+    facilityId?: number;
+    date?: string;
 }
 
-export default function MenuDisplay({ meals }: MenuDisplayProps) {
+export default function MenuDisplay({ meals, facilityId, date }: MenuDisplayProps) {
     const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
+    const [liveMeals, setLiveMeals] = useState<Meal[]>(meals);
+    const [hasAttemptedRefetch, setHasAttemptedRefetch] = useState(false);
+
+    // Sync state when props change
+    useEffect(() => {
+        setLiveMeals(meals);
+        // Reset the fetch flag so we can attempt a refetch if re-selected
+        setHasAttemptedRefetch(false);
+    }, [meals, facilityId, date]);
+
+    // Fetch missing images if needed
+    useEffect(() => {
+        const hasMissingImages = liveMeals.some(m => !m.imageId && !m.imageUrl);
+
+        if (hasMissingImages && !hasAttemptedRefetch && facilityId && date) {
+            setHasAttemptedRefetch(true);
+
+            let active = true;
+            const fetchImages = async () => {
+                try {
+                    // Add timestamp to bypass browser cache
+                    const res = await fetch(`/api/menu?facility=${facilityId}&date=${date}&t=${Date.now()}`);
+                    if (!res.ok) return;
+
+                    const freshMeals: Meal[] = await res.json();
+
+                    if (active && freshMeals.length > 0) {
+                        setLiveMeals(prev => {
+                            const updated = prev.map(m => {
+                                const fresh = freshMeals.find(f => f.id === m.id || f.name === m.name);
+                                if (fresh && ((!m.imageId && fresh.imageId) || (!m.imageUrl && fresh.imageUrl))) {
+                                    return {
+                                        ...m,
+                                        imageId: fresh.imageId || m.imageId,
+                                        imageUrl: fresh.imageUrl || m.imageUrl
+                                    };
+                                }
+                                return m;
+                            });
+
+                            // Only trigger a re-render if an image was actually found
+                            const changed = prev.some((p, i) => p.imageId !== updated[i].imageId || p.imageUrl !== updated[i].imageUrl);
+                            return changed ? updated : prev;
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to refetch missing images:', error);
+                }
+            };
+
+            fetchImages();
+            return () => { active = false; };
+        }
+    }, [liveMeals, hasAttemptedRefetch, facilityId, date]);
 
     return (
         <div className={styles.container}>
@@ -44,7 +100,7 @@ export default function MenuDisplay({ meals }: MenuDisplayProps) {
             </div>
 
             <div className={viewMode === 'card' ? styles.grid : styles.list}>
-                {meals.map((meal, index) => (
+                {liveMeals.map((meal, index) => (
                     <MenuCard
                         key={meal.id || index}
                         meal={meal}

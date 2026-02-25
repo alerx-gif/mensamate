@@ -18,6 +18,12 @@
     text-align: center;
 }
 
+.version {
+    color: #888;
+    margin-left: 0.25rem;
+    font-size: 0.8em;
+}
+
 .links {
     display: flex;
     gap: 1.5rem;

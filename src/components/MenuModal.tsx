@@ -11,7 +11,8 @@ interface MenuModalProps {
 }
 
 export default function MenuModal({ meal, onClose }: MenuModalProps) {
-    const imageUrl = getImageUrl(meal.imageId);
+    // Support both ETH (imageId) and UZH (imageUrl) images
+    const imageUrl = meal.imageUrl || getImageUrl(meal.imageId);
     const [isVisible, setIsVisible] = useState(false);
     const [showScrollIndicator, setShowScrollIndicator] = useState(false);
     const [energyUnit, setEnergyUnit] = useState<'kJ' | 'kcal'>('kJ');

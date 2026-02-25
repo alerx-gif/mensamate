@@ -1,4 +1,4 @@
-import { getOpeningHours } from '@/lib/eth-client';
+import { getOpeningHours } from '@/lib/unified-client';
 import { Facility } from '@/types/eth';
 import FacilityHeader from './FacilityHeader';
 

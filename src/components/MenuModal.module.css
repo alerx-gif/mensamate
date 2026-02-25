@@ -257,6 +257,7 @@
         transform: translateY(5px);
     }
 }
+
 .clickable {
     cursor: pointer;
     transition: background 0.2s ease;

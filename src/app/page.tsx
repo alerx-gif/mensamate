@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getFacilities } from '@/lib/eth-client';
+import { getAllFacilities } from '@/lib/unified-client';
 import RestaurantNavigation from '@/components/RestaurantNavigation';
 import FacilityContent from '@/components/FacilityContent';
 import ContentSkeleton from '@/components/ContentSkeleton';
@@ -16,7 +16,7 @@ export default async function Home({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedParams = await searchParams;
-  const facilities = await getFacilities();
+  const facilities = await getAllFacilities();
 
   // Sort facilities alphabetically
   facilities.sort((a, b) => {

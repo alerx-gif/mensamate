@@ -1,4 +1,4 @@
-import { getFacilities, getWeeklyMenu } from '@/lib/eth-client';
+import { getAllFacilities, getWeeklyMenu } from '@/lib/unified-client';
 import WeeklyMenuGrid from '@/components/WeeklyMenuGrid';
 import Link from 'next/link';
 import styles from './page.module.css';
@@ -20,7 +20,7 @@ export default async function WeeklyPage({
         ? resolvedParams.date
         : new Date().toISOString().split('T')[0];
 
-    const facilities = await getFacilities();
+    const facilities = await getAllFacilities();
     const selectedFacility = facilities.find(f => f.id === facilityId);
 
     let weeklyPlan = null;

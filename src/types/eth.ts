@@ -102,6 +102,8 @@ export interface Meal {
     description: string;
     prices: Price;
     imageId?: number;
+    imageUrl?: string;    // Direct image URL (used by UZH/Food2050)
+    detailUrl?: string;   // Link to detail page (used by UZH/Food2050)
     type?: string;
     line?: string;
     allergens?: Allergen[];

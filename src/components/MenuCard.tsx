@@ -13,7 +13,8 @@ interface MenuCardProps {
 }
 
 export default function MenuCard({ meal, viewMode = 'card', index = 0 }: MenuCardProps) {
-    const imageUrl = getImageUrl(meal.imageId);
+    // Support both ETH (imageId) and UZH (imageUrl) images
+    const imageUrl = meal.imageUrl || getImageUrl(meal.imageId);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Determine dietary status

@@ -20,6 +20,7 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
     // Priority lists
     const ZENTRUM_PRIORITY = ['Mensa Polyterrasse', 'Polysnack', 'Archimedes'];
     const HOENGG_PRIORITY = ['Food Market', 'Fusion', 'Rice Up'];
+    const UZH_PRIORITY = ['Obere Mensa', 'Untere Mensa', 'Mensa Irchel', 'Seerose', 'Lichthof'];
 
     // Group facilities by location
     const groupedFacilities = useMemo(() => {
@@ -37,6 +38,7 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
             let priorityList: string[] = [];
             if (loc === 'Zentrum') priorityList = ZENTRUM_PRIORITY;
             else if (loc === 'Hönggerberg') priorityList = HOENGG_PRIORITY;
+            else if (loc === 'UZH') priorityList = UZH_PRIORITY;
 
             grouped[loc].sort((a, b) => {
                 const aName = a.shortName || a.name;
@@ -55,8 +57,8 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
         return grouped;
     }, [facilities]);
 
-    // Define section order
-    const locations = ['Zentrum', 'Hönggerberg', 'Oerlikon', 'Other'];
+    // Define section order — ETH locations first, then UZH
+    const locations = ['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other'];
 
     const getFacilityUrl = (id: number) => {
         const params = new URLSearchParams(searchParams.toString());

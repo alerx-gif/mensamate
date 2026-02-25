@@ -16,32 +16,38 @@
     display: flex;
     width: 100%;
     background: var(--gray-bg);
-    /* Solid background container */
     padding: 4px;
     border-radius: 50px;
-    /* Fully rounded pill container */
     gap: 4px;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
-    /* Subtle inset shadow for depth */
     border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+.segmentedControl::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
 }
 
 .tab {
     background: transparent;
     padding: 8px 20px;
     border-radius: 40px;
-    /* Fully rounded tab */
     font-weight: 500;
     color: var(--gray-dark);
     cursor: pointer;
     border: none;
     font-size: 0.95rem;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    /* focus on smooth background transition */
     position: relative;
     z-index: 1;
-    flex: 1;
+    flex: 1 0 auto;
     text-align: center;
+    white-space: nowrap;
 }
 
 .tab:hover {
@@ -143,4 +149,15 @@
 
 .expandButton:hover {
     background: var(--gray-bg);
+}
+
+@media (max-width: 768px) {
+    .tab {
+        /* Exactly fit 3 tabs perfectly: 100% inner width minus 2x 4px gaps, divided by 3 */
+        flex: 0 0 calc((100% - 8px) / 3);
+        padding: 8px 4px;
+        /* Reduce horizontal padding to prevent overflow */
+        font-size: 0.85rem;
+        /* Smaller font so "Hönggerberg" fits */
+    }
 }

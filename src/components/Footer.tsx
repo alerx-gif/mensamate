@@ -1,18 +1,19 @@
-import Link from 'next/link';
-import DonationModal from './DonationModal';
 import styles from './Footer.module.css';
+import packageJson from '../../package.json';
 
 export default function Footer() {
     return (
         <footer className={styles.footer}>
             <div className={styles.content}>
                 <div>
-                    <p>&copy; {new Date().getFullYear()} MensaMate</p>
-                    <p className={styles.disclaimer}>Not affiliated with ETH Zurich</p>
+                    <p>
+                        &copy; {new Date().getFullYear()} MensaMate
+                        <span className={styles.version}>v{packageJson.version}</span>
+                    </p>
+                    <p className={styles.disclaimer}>Not affiliated with ETH Zurich or UZH</p>
                 </div>
 
                 <div className={styles.links}>
-                    <DonationModal />
                     <a href="mailto:contact@mensamate.ch" className={styles.link}>
                         <svg height="20" width="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />

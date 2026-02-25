@@ -1,4 +1,4 @@
-import { getDailyMenu } from '@/lib/eth-client';
+import { getDailyMenu } from '@/lib/unified-client';
 import { Facility } from '@/types/eth';
 import MenuDisplay from './MenuDisplay';
 import styles from '../app/page.module.css';
@@ -24,7 +24,7 @@ export default async function FacilityContent({
                     <p>No menus found for today ({today}) at this location.</p>
                 </div>
             ) : (
-                <MenuDisplay meals={displayedMenus} />
+                <MenuDisplay meals={displayedMenus} facilityId={selectedFacility.id} date={today} />
             )}
 
             <div style={{ textAlign: 'center', margin: '2rem 0 1rem 0' }}>
