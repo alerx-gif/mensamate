@@ -250,3 +250,94 @@
     margin-top: 0.5rem;
     font-weight: bold;
 }
+
+.locationDropdownContainer {
+    position: relative;
+    width: 100%;
+}
+
+.locationDropdownToggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--background-color, #f5f5f5);
+    border: 1px solid var(--gray-light, #ddd);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    text-align: left;
+    color: var(--text-color, #333);
+}
+
+.locationDropdownMenu {
+    margin-top: 0.5rem;
+    background: white;
+    border: 1px solid var(--gray-light, #ddd);
+    border-radius: 6px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.locationDropdownItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--background-color, #f9f9f9);
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+}
+
+.locationDropdownItem:hover {
+    border-color: var(--gray-light, #ddd);
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-color, #333);
+    cursor: pointer;
+    margin: 0;
+}
+
+.checkbox {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.reorderButtons {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.reorderBtn {
+    background: transparent;
+    border: 1px solid var(--gray-light, #ddd);
+    color: var(--gray-dark, #666);
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.reorderBtn:hover:not(:disabled) {
+    background: #eaeaea;
+    color: var(--text-color, #333);
+}
+
+.reorderBtn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}

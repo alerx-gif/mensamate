@@ -153,11 +153,8 @@
 
 @media (max-width: 768px) {
     .tab {
-        /* Exactly fit 3 tabs perfectly: 100% inner width minus 2x 4px gaps, divided by 3 */
-        flex: 0 0 calc((100% - 8px) / 3);
+        flex: 1 1 auto;
         padding: 8px 4px;
-        /* Reduce horizontal padding to prevent overflow */
         font-size: 0.85rem;
-        /* Smaller font so "Hönggerberg" fits */
     }
 }

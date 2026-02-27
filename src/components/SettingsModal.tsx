@@ -19,6 +19,10 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
 
     const [facilities, setFacilities] = useState<Facility[]>([]);
     const [defaultFacility, setDefaultFacility] = useState<string>('');
+    const [visibleLocations, setVisibleLocations] = useState<string[]>(['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other']);
+    const [locationOrder, setLocationOrder] = useState<string[]>(['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other']);
+    const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+
 
     useEffect(() => {
         // Fetch facilities
@@ -34,7 +38,48 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
         if (saved) {
             setDefaultFacility(saved);
         }
+
+        const savedOrder = localStorage.getItem('locationOrder');
+        if (savedOrder) {
+            try {
+                setLocationOrder(JSON.parse(savedOrder));
+            } catch (e) { }
+        }
+
+        const savedLocs = localStorage.getItem('visibleLocations');
+        if (savedLocs) {
+            try {
+                setVisibleLocations(JSON.parse(savedLocs));
+            } catch (e) { }
+        }
     }, []);
+
+    const handleToggleLocation = (loc: string) => {
+        let updated: string[];
+        if (visibleLocations.includes(loc)) {
+            updated = visibleLocations.filter(l => l !== loc);
+            if (updated.length === 0) return; // keep at least one
+        } else {
+            updated = [...visibleLocations, loc];
+        }
+        setVisibleLocations(updated);
+        localStorage.setItem('visibleLocations', JSON.stringify(updated));
+        window.dispatchEvent(new Event('locationsUpdated'));
+    };
+
+    const handleMoveLocation = (index: number, direction: 'up' | 'down') => {
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === locationOrder.length - 1) return;
+
+        const newOrder = [...locationOrder];
+        const swapIndex = direction === 'up' ? index - 1 : index + 1;
+
+        [newOrder[index], newOrder[swapIndex]] = [newOrder[swapIndex], newOrder[index]];
+
+        setLocationOrder(newOrder);
+        localStorage.setItem('locationOrder', JSON.stringify(newOrder));
+        window.dispatchEvent(new Event('locationsUpdated'));
+    };
 
     const handleSaveDefaultFacility = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const val = e.target.value;
@@ -111,6 +156,56 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                                     </option>
                                 ))}
                             </select>
+
+                            <p className={styles.description} style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
+                                Navigation Menu
+                            </p>
+
+                            <div className={styles.locationDropdownContainer}>
+                                <button
+                                    className={styles.locationDropdownToggle}
+                                    onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
+                                >
+                                    Customize Locations
+                                    <span className={`${styles.accordionIcon} ${isLocationDropdownOpen ? styles.open : ''}`}>▼</span>
+                                </button>
+
+                                {isLocationDropdownOpen && (
+                                    <div className={styles.locationDropdownMenu}>
+                                        {locationOrder.map((loc, index) => (
+                                            <div key={loc} className={styles.locationDropdownItem}>
+                                                <label className={styles.checkboxLabel}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={visibleLocations.includes(loc)}
+                                                        onChange={() => handleToggleLocation(loc)}
+                                                        className={styles.checkbox}
+                                                    />
+                                                    <span>{loc}</span>
+                                                </label>
+                                                <div className={styles.reorderButtons}>
+                                                    <button
+                                                        className={styles.reorderBtn}
+                                                        onClick={() => handleMoveLocation(index, 'up')}
+                                                        disabled={index === 0}
+                                                        aria-label="Move up"
+                                                    >
+                                                        ▲
+                                                    </button>
+                                                    <button
+                                                        className={styles.reorderBtn}
+                                                        onClick={() => handleMoveLocation(index, 'down')}
+                                                        disabled={index === locationOrder.length - 1}
+                                                        aria-label="Move down"
+                                                    >
+                                                        ▼
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 

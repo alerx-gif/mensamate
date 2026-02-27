@@ -14,6 +14,27 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
     const searchParams = useSearchParams();
     const [activeLocation, setActiveLocation] = useState<string>('Zentrum');
     const [expandedLocations, setExpandedLocations] = useState<Record<string, boolean>>({});
+    const [locations, setLocations] = useState<string[]>(['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other']);
+
+    useEffect(() => {
+        const loadLocations = () => {
+            const savedVisible = localStorage.getItem('visibleLocations');
+            const savedOrder = localStorage.getItem('locationOrder');
+
+            let currentOrder = ['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other'];
+            let currentVisible = currentOrder;
+
+            try {
+                if (savedOrder) currentOrder = JSON.parse(savedOrder);
+                if (savedVisible) currentVisible = JSON.parse(savedVisible);
+            } catch (e) { }
+
+            setLocations(currentOrder.filter(loc => currentVisible.includes(loc)));
+        };
+        loadLocations();
+        window.addEventListener('locationsUpdated', loadLocations);
+        return () => window.removeEventListener('locationsUpdated', loadLocations);
+    }, []);
 
     const currentFacilityId = searchParams.get('facility') || (facilities[0]?.id.toString() || '');
 
@@ -67,8 +88,26 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
         return grouped;
     }, [facilities]);
 
-    // Define section order — ETH locations first, then UZH
-    const locations = ['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other'];
+    const locationsWithFacilities = useMemo(() => {
+        return locations.filter(loc => groupedFacilities[loc] && groupedFacilities[loc].length > 0);
+    }, [locations, groupedFacilities]);
+
+    useEffect(() => {
+        if (locationsWithFacilities.length > 0 && !locationsWithFacilities.includes(activeLocation)) {
+            // Keep the active location matched if the URL has one, else default to the first visible location
+            const currentFacility = facilities.find(f => f.id.toString() === currentFacilityId);
+            let urlLoc = 'Zentrum';
+            if (currentFacility) {
+                urlLoc = currentFacility.location || 'Other';
+                if (urlLoc === 'Basel') urlLoc = 'Other';
+            }
+            if (locationsWithFacilities.includes(urlLoc)) {
+                setActiveLocation(urlLoc);
+            } else {
+                setActiveLocation(locationsWithFacilities[0]);
+            }
+        }
+    }, [locationsWithFacilities, activeLocation, facilities, currentFacilityId]);
 
     const getFacilityUrl = (id: number) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -95,10 +134,10 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
     return (
         <div className={styles.container}>
             {/* Segmented Control for Categories */}
-            <div className={styles.segmentedControlWrapper}>
-                <div className={styles.segmentedControl}>
-                    {locations.map(loc => (
-                        groupedFacilities[loc] && groupedFacilities[loc].length > 0 && (
+            {locationsWithFacilities.length > 1 && (
+                <div className={styles.segmentedControlWrapper}>
+                    <div className={styles.segmentedControl}>
+                        {locationsWithFacilities.map(loc => (
                             <button
                                 key={loc}
                                 className={`${styles.tab} ${activeLocation === loc ? styles.activeTab : ''}`}
@@ -106,10 +145,10 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
                             >
                                 {loc}
                             </button>
-                        )
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Scrollable Pills for Restaurants */}
             <div className={styles.scrollWrapper}>

@@ -1,13 +1,26 @@
-import { uniqueNamesGenerator, adjectives, animals } from 'unique-names-generator';
+import { uniqueNamesGenerator } from 'unique-names-generator';
+
+const studentAdjectives = [
+    'Hungry', 'Tired', 'Broke', 'Caffeinated', 'Sleepy', 'Stressed', 'Late',
+    'Eager', 'Smart', 'Lazy', 'Stuffed', 'Focused', 'Thirsty', 'Starving',
+    'Hangry', 'Busy', 'Motivated', 'Procrastinating', 'Studious', 'Lost'
+];
+
+const foodAndUtensils = [
+    'Fork', 'Spoon', 'Knife', 'Spatula', 'Plate', 'Bowl', 'Cup', 'Mug',
+    'Burger', 'Pizza', 'Sushi', 'Pasta', 'Coffee', 'Burrito', 'Taco',
+    'Salad', 'Sandwich', 'Noodle', 'Chopstick', 'Pan', 'Wok', 'Kebab',
+    'Schnitzel', 'Fries', 'Apple', 'Banana', 'Croissant', 'Espresso'
+];
 
 const MAGIC_EMAIL_DOMAIN = '@mensamate.local';
 
 /**
- * Generates a memorable sync code like: `SaltyPenguin#8910`
+ * Generates a memorable sync code like: `HungryBurrito#8910`
  */
 export function generateMagicUsername(): string {
     const dictionary = uniqueNamesGenerator({
-        dictionaries: [adjectives, animals],
+        dictionaries: [studentAdjectives, foodAndUtensils],
         separator: '',
         style: 'capital',
         length: 2
