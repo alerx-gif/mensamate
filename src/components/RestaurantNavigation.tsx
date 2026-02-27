@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Facility } from '@/types/eth';
@@ -16,6 +16,16 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
     const [expandedLocations, setExpandedLocations] = useState<Record<string, boolean>>({});
 
     const currentFacilityId = searchParams.get('facility') || (facilities[0]?.id.toString() || '');
+
+    // Sync the tab selector with the currently selected facility
+    useEffect(() => {
+        const currentFacility = facilities.find(f => f.id.toString() === currentFacilityId);
+        if (currentFacility) {
+            let loc = currentFacility.location || 'Other';
+            if (loc === 'Basel') loc = 'Other';
+            setActiveLocation(loc);
+        }
+    }, [currentFacilityId, facilities]);
 
     // Priority lists
     const ZENTRUM_PRIORITY = ['Mensa Polyterrasse', 'Polysnack', 'Archimedes'];

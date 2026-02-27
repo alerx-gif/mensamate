@@ -132,6 +132,9 @@
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid var(--gray-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .price {
@@ -199,4 +202,43 @@
     .cardList .title {
         font-size: 1rem;
     }
+}
+
+.favoriteButton {
+    background: white;
+    color: #cbd5e1;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-left: auto;
+}
+
+.favoriteButton:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e1;
+    color: #94a3b8;
+}
+
+.favoriteButton:active {
+    transform: scale(0.95);
+}
+
+.favoriteButton.isFavorite {
+    background: white;
+    color: #f59e0b;
+    border-color: #fcd34d;
+    box-shadow: 0 4px 6px rgba(245, 158, 11, 0.2);
+}
+
+.favoriteButton svg {
+    margin-top: 0;
 }
