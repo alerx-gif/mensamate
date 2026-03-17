@@ -340,4 +340,25 @@
 .reorderBtn:disabled {
     opacity: 0.3;
     cursor: not-allowed;
+}.allergensGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.headerWithBadge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.betaTag {
+    background-color: #3b82f6;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
 }

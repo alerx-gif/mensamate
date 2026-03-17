@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Facility } from '@/types/eth';
+import { useAllergens } from '@/lib/useAllergens';
 import styles from './SettingsModal.module.css';
 
 interface SettingsModalProps {
@@ -15,7 +16,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
-    const [openSection, setOpenSection] = useState<'preferences' | 'sync' | null>('preferences');
+    const [openSection, setOpenSection] = useState<'preferences' | 'sync' | 'allergies' | null>('preferences');
 
     const [facilities, setFacilities] = useState<Facility[]>([]);
     const [defaultFacility, setDefaultFacility] = useState<string>('');
@@ -23,6 +24,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     const [locationOrder, setLocationOrder] = useState<string[]>(['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other']);
     const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
 
+    const { knownAllergens, selectedAllergens, toggleAllergen, fetchAndMergeAllergens } = useAllergens();
 
     useEffect(() => {
         // Fetch facilities
@@ -52,7 +54,15 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                 setVisibleLocations(JSON.parse(savedLocs));
             } catch (e) { }
         }
-    }, []);
+    }, [fetchAndMergeAllergens]);
+
+    useEffect(() => {
+        // Fetch known allergens automatically if none are known (initial populate) 
+        // Or consider just calling it every time settings is opened
+        if (openSection === 'allergies') {
+            fetchAndMergeAllergens();
+        }
+    }, [openSection, fetchAndMergeAllergens]);
 
     const handleToggleLocation = (loc: string) => {
         let updated: string[];
@@ -117,7 +127,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
         }
     };
 
-    const toggleSection = (section: 'preferences' | 'sync') => {
+    const toggleSection = (section: 'preferences' | 'sync' | 'allergies') => {
         setOpenSection(openSection === section ? null : section);
     };
 
@@ -204,6 +214,39 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                                             </div>
                                         ))}
                                     </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={styles.accordionSection}>
+                        <button className={styles.accordionHeader} onClick={() => toggleSection('allergies')}>
+                            <div className={styles.headerWithBadge}>
+                                Dietary & Allergies
+                                <span className={styles.betaTag}>BETA</span>
+                            </div>
+                            <span className={`${styles.accordionIcon} ${openSection === 'allergies' ? styles.open : ''}`}>▼</span>
+                        </button>
+                        <div className={`${styles.accordionContent} ${openSection === 'allergies' ? styles.open : ''}`}>
+                            <p className={styles.description} style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+                                Choose your dietary preferences. Meals containing your selected ingredients will be clearly highlighted.
+                            </p>
+
+                            <div className={styles.allergensGrid}>
+                                {knownAllergens.length === 0 ? (
+                                    <p className={styles.description}>Loading allergens...</p>
+                                ) : (
+                                    knownAllergens.map((allergen) => (
+                                        <label key={allergen.code + allergen.desc} className={styles.checkboxLabel}>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedAllergens.includes(allergen.desc)}
+                                                onChange={() => toggleAllergen(allergen.desc)}
+                                                className={styles.checkbox}
+                                            />
+                                            <span>{allergen.desc}</span>
+                                        </label>
+                                    ))
                                 )}
                             </div>
                         </div>

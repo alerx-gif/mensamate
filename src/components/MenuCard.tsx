@@ -8,6 +8,8 @@ import MenuModal from './MenuModal';
 import { useFavorites } from '@/lib/useFavorites';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { isUzhFacility } from '@/lib/uzh-client';
+import { useAllergens } from '@/lib/useAllergens';
+import { AlertTriangle } from 'lucide-react';
 
 interface MenuCardProps {
     meal: Meal;
@@ -26,6 +28,11 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
     const { session } = useAuth();
     const uniqueMenuId = meal.id ? String(meal.id) : meal.name;
     const isFav = facilityId ? isFavorite(facilityId, uniqueMenuId) : false;
+
+    // Allergens logic
+    const { hasSelectedAllergen, getTriggeringAllergens } = useAllergens();
+    const isAllergenWarning = hasSelectedAllergen(meal.allergens);
+    const triggeringAllergens = getTriggeringAllergens(meal.allergens);
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // prevent opening the modal
@@ -61,12 +68,24 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
                 )}
                 <div className={styles.content}>
                     <div className={styles.header}>
-                        <h3 className={styles.title}>{meal.name}</h3>
+                        <h3 className={styles.title}>
+                            {meal.name}
+                        </h3>
                         {!imageUrl && dietaryLabel && <span className={styles.dietaryTagInline}>{dietaryLabel}</span>}
                     </div>
                     <p className={styles.description}>{meal.description}</p>
                     <div className={styles.priceDisplay}>
-                        <span className={styles.price}>CHF {meal.prices.student.toFixed(2)}</span>
+                        <div className={styles.priceDisplayLeft}>
+                            <span className={styles.price}>CHF {meal.prices.student.toFixed(2)}</span>
+                            {isAllergenWarning && (
+                                <div 
+                                    className={styles.allergenWarning} 
+                                    title={`Contains selected allergens: ${triggeringAllergens.join(', ')}`}
+                                >
+                                    <AlertTriangle size={18} />
+                                </div>
+                            )}
+                        </div>
                         {session && facilityId && !isUzhFacility(facilityId) && (
                             <button
                                 className={`${styles.favoriteButton} ${isFav ? styles.isFavorite : ''}`}
