@@ -52,7 +52,7 @@ export default function WeeklyMenuGrid({ plan }: WeeklyMenuGridProps) {
                     {plan.days[currentDayIndex] && (
                         <div className={styles.mealsList}>
                             {plan.days[currentDayIndex].meals.map((meal, mIndex) => (
-                                <MenuCard key={meal.id || mIndex} meal={meal} />
+                                <MenuCard key={meal.id || mIndex} meal={meal} facilityId={plan.facilityId} />
                             ))}
                         </div>
                     )}
@@ -66,7 +66,7 @@ export default function WeeklyMenuGrid({ plan }: WeeklyMenuGridProps) {
                         <h2 className={styles.dayTitle}>{day.dayOfWeek}</h2>
                         <div className={styles.mealsList}>
                             {day.meals.map((meal, mIndex) => (
-                                <MenuCard key={meal.id || mIndex} meal={meal} />
+                                <MenuCard key={meal.id || mIndex} meal={meal} facilityId={plan.facilityId} />
                             ))}
                         </div>
                     </div>

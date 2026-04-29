@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import DefaultFacilityRedirect from "@/components/DefaultFacilityRedirect";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Mensa Mate",
@@ -19,12 +21,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        <main className="container">
-          {children}
-        </main>
-        <Footer />
-        <Analytics />
+        <AuthProvider>
+          <Navbar />
+          <main className="container">
+            <Suspense fallback={null}>
+              <DefaultFacilityRedirect />
+            </Suspense>
+            {children}
+          </main>
+          <Footer />
+          <Analytics />
+        </AuthProvider>
       </body>
     </html>
   );

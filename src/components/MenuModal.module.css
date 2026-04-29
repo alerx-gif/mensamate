@@ -269,3 +269,9 @@
 .clickable:hover {
     background: var(--gray-light);
 }
+.highlightedAllergen {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--destructive, #ef4444);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-weight: 600;
+}

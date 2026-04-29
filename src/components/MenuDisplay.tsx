@@ -106,6 +106,7 @@ export default function MenuDisplay({ meals, facilityId, date }: MenuDisplayProp
                         meal={meal}
                         viewMode={viewMode}
                         index={index}
+                        facilityId={facilityId}
                     />
                 ))}
             </div>

@@ -153,11 +153,81 @@
 
 @media (max-width: 768px) {
     .tab {
-        /* Exactly fit 3 tabs perfectly: 100% inner width minus 2x 4px gaps, divided by 3 */
-        flex: 0 0 calc((100% - 8px) / 3);
+        flex: 1 1 auto;
         padding: 8px 4px;
-        /* Reduce horizontal padding to prevent overflow */
         font-size: 0.85rem;
-        /* Smaller font so "Hönggerberg" fits */
     }
+}
+.scrollContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.scrollButton {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border: 1px solid var(--gray-light);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    color: var(--text-color);
+    transition: all 0.2s ease;
+}
+
+.scrollButton:hover {
+    background: var(--gray-bg);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.scrollButton.left {
+    left: 0;
+}
+
+.scrollButton.right {
+    right: 0;
+}
+
+/* Hide scroll buttons on mobile devices where swipe is natural */
+@media (max-width: 768px) {
+    .scrollButton {
+        display: none;
+    }
+}
+
+/* Update scroll wrapper to account for buttons */
+.scrollWrapperWithButtons {
+    position: relative;
+    width: 100%;
+    /* Add padding so pills don't hide under buttons */
+    padding: 0 40px;
+}
+
+/* Apply mask only when not at edges (handled in JS/inline ideally, but this is a fallback) */
+.scrollWrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden; /* Hide the scrollbar space */
+}
+
+/* Drag-to-scroll active state */
+.dragging {
+    cursor: grabbing !important;
+}
+
+.dragging * {
+    user-select: none;
+}
+
+.scrollWrapper {
+    cursor: grab;
 }

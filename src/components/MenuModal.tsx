@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Meal } from '@/types/eth';
 import { getImageUrl } from '@/lib/eth-client';
+import { useAllergens } from '@/lib/useAllergens';
 import styles from './MenuModal.module.css';
 
 interface MenuModalProps {
@@ -49,6 +50,8 @@ export default function MenuModal({ meal, onClose }: MenuModalProps) {
     const isVegetarian = !isVegan && meal.type?.toLowerCase().includes('vegetarisch');
     const dietaryLabel = isVegan ? 'VEGAN' : isVegetarian ? 'VEGI' : null;
 
+    const { selectedAllergens } = useAllergens();
+
     return (
         <div className={styles.overlay} onClick={handleClose}>
             <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -93,11 +96,18 @@ export default function MenuModal({ meal, onClose }: MenuModalProps) {
                         <div className={styles.section}>
                             <h4 className={styles.sectionTitle}>Allergens</h4>
                             <div className={styles.allergensList}>
-                                {meal.allergens.map((allergen, index) => (
-                                    <span key={allergen.code || index} className={styles.allergenTag}>
-                                        {allergen.desc}
-                                    </span>
-                                ))}
+                                {meal.allergens.map((allergen, index) => {
+                                    const isHighlighted = selectedAllergens.some(selected => selected.toLowerCase() === allergen.desc?.toLowerCase());
+                                    return (
+                                        <span 
+                                            key={allergen.code || index} 
+                                            className={`${styles.allergenTag} ${isHighlighted ? styles.highlightedAllergen : ''}`}
+                                            title={isHighlighted ? "Contains selected allergen" : undefined}
+                                        >
+                                            {allergen.desc}
+                                        </span>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}

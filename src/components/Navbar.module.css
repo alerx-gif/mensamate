@@ -4,12 +4,10 @@
     z-index: 100;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    justify-content: space-between;
     padding: 12px 20px;
     background: var(--background-color);
     border-bottom: 1px solid transparent;
-    /* Hidden by default or just remove border if they want clean look until scroll */
     transition: box-shadow 0.3s ease, border-bottom-color 0.3s ease;
 }
 
@@ -28,7 +26,9 @@
     text-transform: uppercase;
     letter-spacing: -1px;
     color: black;
-    /* Changed to black as requested */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 /* Removed gradient classes as they are no longer needed for the text color */
@@ -42,4 +42,24 @@
     border-radius: 3px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+}
+
+.settingsButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gray-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+    margin-left: auto;
+    /* Push to the right edge */
+}
+
+.settingsButton:hover {
+    background-color: var(--gray-light);
+    color: black;
 }
