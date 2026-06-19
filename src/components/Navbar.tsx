@@ -3,11 +3,31 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SettingsModal from './SettingsModal';
+import SnakeGame from './SnakeGame';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [logoClicks, setLogoClicks] = useState(0);
+    const [isSnakeGameOpen, setIsSnakeGameOpen] = useState(false);
+
+    useEffect(() => {
+        if (logoClicks > 0) {
+            const timeout = setTimeout(() => setLogoClicks(0), 1000);
+            return () => clearTimeout(timeout);
+        }
+    }, [logoClicks]);
+
+    const handleLogoClick = (e: React.MouseEvent) => {
+        if (logoClicks + 1 >= 5) {
+            e.preventDefault();
+            setIsSnakeGameOpen(true);
+            setLogoClicks(0);
+        } else {
+            setLogoClicks(prev => prev + 1);
+        }
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -24,7 +44,7 @@ export default function Navbar() {
 
     return (
         <nav className={`${styles.navbar} ${isScrolled ? styles.scrolled : ''}`}>
-            <Link href="/" className={styles.brand}>
+            <Link href="/" className={styles.brand} onClick={handleLogoClick}>
                 <span>Mensa</span>
                 <span>Mate</span>
             </Link>
@@ -48,6 +68,7 @@ export default function Navbar() {
             </button>
 
             {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
+            {isSnakeGameOpen && <SnakeGame onClose={() => setIsSnakeGameOpen(false)} />}
         </nav>
     );
 }

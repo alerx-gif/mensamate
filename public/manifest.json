@@ -1,0 +1,16 @@
+{
+  "name": "Mensa Mate",
+  "short_name": "Mensa Mate",
+  "description": "Your daily university menu planner",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f9fc",
+  "theme_color": "#ff6b6b",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

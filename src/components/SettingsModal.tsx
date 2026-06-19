@@ -95,6 +95,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
         const val = e.target.value;
         setDefaultFacility(val);
         localStorage.setItem('defaultFacility', val);
+        document.cookie = `defaultFacility=${val}; path=/; max-age=31536000`;
     };
 
     const handleSync = async (e: React.FormEvent) => {

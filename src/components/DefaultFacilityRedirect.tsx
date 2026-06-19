@@ -9,13 +9,15 @@ export default function DefaultFacilityRedirect() {
     const pathname = usePathname();
 
     useEffect(() => {
-        // Only run on the root page when no facility is explicitly selected
+        // Handled by server-side cookies now, keeping file for reference or future client-side needs
+        /*
         if (pathname === '/' && !searchParams.get('facility')) {
             const defaultFacility = localStorage.getItem('defaultFacility');
             if (defaultFacility) {
                 router.replace(`/?facility=${defaultFacility}`);
             }
         }
+        */
     }, [pathname, searchParams, router]);
 
     return null;

@@ -19,6 +19,19 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  /* iOS PWA Optimizations */
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  /* Prevent the elastic bounce on iOS if the page itself doesn't scroll */
+  /* overscroll-behavior-y: none; */
+}
+
+/* Prevent text selection on UI elements to make it feel like a native app */
+button, a, h1, h2, h3, .card {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 body {

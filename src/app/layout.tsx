@@ -9,6 +9,15 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "Mensa Mate",
   description: "Your daily university menu planner",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Mensa Mate",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 import { Analytics } from "@vercel/analytics/react";

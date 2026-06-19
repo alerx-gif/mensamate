@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import styles from './MenuCard.module.css';
 import { Meal } from '@/types/eth';
 import { getImageUrl } from '@/lib/eth-client';
@@ -56,7 +57,15 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
             >
                 {imageUrl && (
                     <div className={styles.imageWrapper}>
-                        <img src={imageUrl} alt={meal.name} className={styles.image} />
+                        <Image 
+                            src={imageUrl} 
+                            alt={meal.name} 
+                            className={styles.image} 
+                            fill 
+                            style={{ objectFit: 'cover' }} 
+                            sizes="(max-width: 768px) 100vw, 400px" 
+                            priority={index < 2}
+                        />
                         <div className={styles.tagsContainer}>
                             {/* Hide category label in list view */}
                             {viewMode === 'card' && meal.label && (

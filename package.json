@@ -1,6 +1,6 @@
 {
   "name": "mensa-mate",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,6 +10,7 @@
     "changeset": "changeset"
   },
   "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.98.0",
     "@vercel/analytics": "^1.6.1",

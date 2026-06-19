@@ -33,8 +33,7 @@ export default function MenuDisplay({ meals, facilityId, date }: MenuDisplayProp
             let active = true;
             const fetchImages = async () => {
                 try {
-                    // Add timestamp to bypass browser cache
-                    const res = await fetch(`/api/menu?facility=${facilityId}&date=${date}&t=${Date.now()}`);
+                    const res = await fetch(`/api/menu?facility=${facilityId}&date=${date}`);
                     if (!res.ok) return;
 
                     const freshMeals: Meal[] = await res.json();

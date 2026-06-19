@@ -32,10 +32,10 @@ export default async function WeeklyPage({
         <div className={styles.main}>
             <header className={styles.header}>
                 <Link href={`/?facility=${facilityId}`} className={styles.backLink}>
-                    ← Back to Daily View
+                    ← Daily View
                 </Link>
                 <h1 className={styles.title}>
-                    Weekly Menu: {selectedFacility?.name || 'Select a Restaurant'}
+                    {selectedFacility?.name || 'Select a Restaurant'}
                 </h1>
             </header>
 

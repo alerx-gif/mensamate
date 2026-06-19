@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WeeklyPlan } from '@/types/eth';
 import MenuCard from './MenuCard';
 import styles from './WeeklyMenuGrid.module.css';
@@ -11,6 +11,13 @@ interface WeeklyMenuGridProps {
 
 export default function WeeklyMenuGrid({ plan }: WeeklyMenuGridProps) {
     const [currentDayIndex, setCurrentDayIndex] = useState(0);
+
+    // Initialize to current day of the week on mount to avoid hydration errors
+    useEffect(() => {
+        const currentDay = new Date().getDay();
+        const defaultIndex = currentDay === 0 ? 6 : currentDay - 1;
+        setCurrentDayIndex(Math.min(Math.max(0, defaultIndex), plan.days.length - 1));
+    }, [plan.days.length]);
 
     const nextDay = () => {
         if (currentDayIndex < plan.days.length - 1) {
@@ -33,8 +40,9 @@ export default function WeeklyMenuGrid({ plan }: WeeklyMenuGridProps) {
                         onClick={prevDay}
                         disabled={currentDayIndex === 0}
                         className={styles.navButton}
+                        aria-label="Previous Day"
                     >
-                        ← Prev
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                     </button>
                     <span className={styles.dayIndicator}>
                         {plan.days[currentDayIndex]?.dayOfWeek}
@@ -43,8 +51,9 @@ export default function WeeklyMenuGrid({ plan }: WeeklyMenuGridProps) {
                         onClick={nextDay}
                         disabled={currentDayIndex === plan.days.length - 1}
                         className={styles.navButton}
+                        aria-label="Next Day"
                     >
-                        Next →
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                 </div>
 

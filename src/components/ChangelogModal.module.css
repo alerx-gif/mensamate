@@ -1,0 +1,100 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: var(--card-bg, white);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--gray-light, #eee);
+    background: var(--background-color, #f9f9f9);
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-color, #333);
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gray-dark, #666);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.body {
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.versionBlock {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--gray-light, #eee);
+    padding-bottom: 1rem;
+}
+
+.versionBlock:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.versionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+}
+
+.versionNumber {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color, #333);
+}
+
+.versionDate {
+    font-size: 0.85rem;
+    color: var(--gray-dark, #666);
+}
+
+.changesList {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin: 0;
+    color: var(--text-color, #444);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.changesList li {
+    margin-bottom: 0.25rem;
+}

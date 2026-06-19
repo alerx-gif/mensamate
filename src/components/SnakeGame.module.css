@@ -1,0 +1,162 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--background-color, #f9f9f9);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.header {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color, #2ecc71);
+    margin: 0;
+}
+
+.score {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color, #333);
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gray-dark, #666);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+    background-color: var(--gray-light, #eee);
+}
+
+.gameBoard {
+    width: 90vw;
+    height: 90vw;
+    max-width: 400px;
+    max-height: 400px;
+    background-color: var(--card-bg, white);
+    border: 2px solid var(--gray-light, #eee);
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.snakeSegment {
+    position: absolute;
+    background-color: var(--primary-color, #2ecc71);
+    border-radius: 4px;
+    transform: scale(0.9);
+    transition: left 150ms linear, top 150ms linear;
+}
+
+.snakeHead {
+    background-color: #27ae60;
+    border-radius: 6px;
+    z-index: 2;
+}
+
+.food {
+    position: absolute;
+    background-color: #e74c3c;
+    border-radius: 50%;
+    transform: scale(0.8);
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+}
+
+.gameOver {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.gameOver h2 {
+    color: #e74c3c;
+    margin-bottom: 0.5rem;
+}
+
+.restartButton {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color, #2ecc71);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.restartButton:hover {
+    background-color: #27ae60;
+}
+
+.controls {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(3, 64px);
+    grid-template-rows: repeat(2, 64px);
+    grid-gap: 8px;
+    justify-content: center;
+}
+
+.controlButton {
+    background-color: var(--card-bg, white);
+    border: 1px solid var(--gray-light, #ccc);
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    color: var(--gray-dark, #555);
+    transition: transform 0.1s, background-color 0.1s, box-shadow 0.1s;
+}
+
+.controlButton:active {
+    background-color: var(--gray-light, #eee);
+    transform: scale(0.92);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.controlButton svg {
+    pointer-events: none;
+}
+
+.up { grid-column: 2; grid-row: 1; }
+.left { grid-column: 1; grid-row: 2; }
+.right { grid-column: 3; grid-row: 2; }
+.down { grid-column: 2; grid-row: 2; }

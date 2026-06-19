@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import styles from './Footer.module.css';
-import packageJson from '../../package.json';
 import FeedbackCaptcha from './FeedbackCaptcha';
+import ChangelogButton from './ChangelogButton';
 
 export default function Footer() {
     return (
@@ -10,7 +10,6 @@ export default function Footer() {
                 <div>
                     <p>
                         &copy; {new Date().getFullYear()} MensaMate
-                        <span className={styles.version}>v{packageJson.version}</span>
                     </p>
                     <p className={styles.disclaimer}>Not affiliated with ETH Zurich or UZH</p>
                 </div>
@@ -23,6 +22,7 @@ export default function Footer() {
                         Privacy
                     </Link>
                     <FeedbackCaptcha className={styles.link} />
+                    <ChangelogButton className={styles.link} />
                     <a
                         href="https://github.com/alerx-gif/mensamate"
                         target="_blank"

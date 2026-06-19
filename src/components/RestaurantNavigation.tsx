@@ -8,11 +8,24 @@ import styles from './RestaurantNavigation.module.css';
 
 interface RestaurantNavigationProps {
     facilities: Facility[];
+    selectedFacilityId: number;
 }
 
-export default function RestaurantNavigation({ facilities }: RestaurantNavigationProps) {
+export default function RestaurantNavigation({ facilities, selectedFacilityId }: RestaurantNavigationProps) {
     const searchParams = useSearchParams();
-    const [activeLocation, setActiveLocation] = useState<string>('Zentrum');
+    const currentFacilityId = searchParams.get('facility') || selectedFacilityId.toString();
+
+    const initialLocation = useMemo(() => {
+        const currentFacility = facilities.find(f => f.id.toString() === currentFacilityId);
+        if (currentFacility) {
+            let loc = currentFacility.location || 'Other';
+            if (loc === 'Basel') loc = 'Other';
+            return loc;
+        }
+        return 'Zentrum';
+    }, [currentFacilityId, facilities]);
+
+    const [activeLocation, setActiveLocation] = useState<string>(initialLocation);
     const [expandedLocations, setExpandedLocations] = useState<Record<string, boolean>>({});
     const [locations, setLocations] = useState<string[]>(['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other']);
 
@@ -35,9 +48,6 @@ export default function RestaurantNavigation({ facilities }: RestaurantNavigatio
         window.addEventListener('locationsUpdated', loadLocations);
         return () => window.removeEventListener('locationsUpdated', loadLocations);
     }, []);
-
-    const currentFacilityId = searchParams.get('facility') || (facilities[0]?.id.toString() || '');
-
     // Sync the tab selector with the currently selected facility
     useEffect(() => {
         const currentFacility = facilities.find(f => f.id.toString() === currentFacilityId);

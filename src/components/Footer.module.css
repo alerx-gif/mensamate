@@ -28,6 +28,8 @@
     display: flex;
     gap: 1.5rem;
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .link {
@@ -37,6 +39,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    background: none;
+    padding: 0;
 }
 
 .link:hover {

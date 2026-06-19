@@ -1,5 +1,5 @@
 .container {
-    padding: 1rem 0;
+    padding: 0.25rem 0 1rem 0;
     width: 100%;
 }
 
@@ -18,32 +18,41 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--card-bg);
-    padding: 0.8rem;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid #eee;
+    background: transparent;
+    padding: 0.8rem 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    margin-bottom: 0.5rem;
 }
 
 .navButton {
-    background: var(--gray-light);
+    background: transparent;
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 4px;
-    font-weight: 600;
     cursor: pointer;
     color: var(--text-color);
 }
 
+.navButton svg {
+    width: 32px;
+    height: 32px;
+}
+
 .navButton:disabled {
-    opacity: 0.5;
+    opacity: 0.2;
     cursor: not-allowed;
 }
 
 .dayIndicator {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--primary-color);
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--text-color);
+    text-transform: capitalize;
 }
 
 .mobileDayContent {
