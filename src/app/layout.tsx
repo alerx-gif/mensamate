@@ -15,6 +15,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Mensa Mate",
   },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
   formatDetection: {
     telephone: false,
   },
