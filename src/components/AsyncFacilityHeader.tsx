@@ -1,0 +1,14 @@
+import { getOpeningHours } from '@/lib/unified-client';
+import { Facility } from '@/types/eth';
+import FacilityHeader from './FacilityHeader';
+
+interface AsyncFacilityHeaderProps {
+    facility: Facility;
+    today: string;
+    dateString: string;
+}
+
+export default async function AsyncFacilityHeader({ facility, today, dateString }: AsyncFacilityHeaderProps) {
+    const openingHours = await getOpeningHours(facility.id, today).catch(() => undefined);
+    return <FacilityHeader facility={facility} openingHours={openingHours} dateString={dateString} />;
+}

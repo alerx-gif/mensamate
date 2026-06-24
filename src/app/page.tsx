@@ -1,11 +1,12 @@
 import { Suspense } from 'react';
 import { cookies } from 'next/headers';
-import { getAllFacilities, getOpeningHours } from '@/lib/unified-client';
+import { getAllFacilities } from '@/lib/unified-client';
 import RestaurantNavigation from '@/components/RestaurantNavigation';
 import FacilityContent from '@/components/FacilityContent';
 import ContentSkeleton from '@/components/ContentSkeleton';
 import NavigationLoadingWrapper from '@/components/NavigationLoadingWrapper';
 import FacilityHeader from '@/components/FacilityHeader';
+import AsyncFacilityHeader from '@/components/AsyncFacilityHeader';
 import styles from './page.module.css';
 
 // Revalidate data every 5 minutes
@@ -40,10 +41,6 @@ export default async function Home({
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Zurich' });
   const dateString = new Date().toLocaleDateString('en-US', { timeZone: 'Europe/Zurich', weekday: 'short', month: 'short', day: 'numeric' });
 
-  const openingHours = selectedFacility 
-    ? await getOpeningHours(selectedFacility.id, today) 
-    : undefined;
-
   return (
     <div className={styles.main}>
       {facilities.length === 0 ? (
@@ -58,7 +55,9 @@ export default async function Home({
         </div>
       ) : (
         <>
-          <FacilityHeader facility={selectedFacility} openingHours={openingHours} dateString={dateString} />
+          <Suspense fallback={<FacilityHeader facility={selectedFacility} dateString={dateString} />}>
+            <AsyncFacilityHeader facility={selectedFacility} today={today} dateString={dateString} />
+          </Suspense>
 
           <RestaurantNavigation facilities={facilities} selectedFacilityId={selectedFacilityId} />
 
