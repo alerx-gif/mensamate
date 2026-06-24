@@ -1,11 +1,11 @@
 .overlay {
     position: fixed;
-    top: 60px;
+    top: calc(60px + env(safe-area-inset-top, 0px));
     left: 0;
     right: 0;
     bottom: 0;
     background-color: transparent;
-    z-index: 99;
+    z-index: 1000;
 }
 
 .dropdownContainer {
@@ -13,7 +13,7 @@
     top: 10px;
     right: 20px;
     background: var(--card-bg, white);
-    border-radius: 12px;
+    border-radius: 18px;
     width: 340px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     z-index: 100;
@@ -42,9 +42,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.25rem;
+    padding: calc(1rem + env(safe-area-inset-top, 0px)) 1.25rem 1rem;
     border-bottom: 1px solid var(--gray-light, #eee);
-    background: var(--background-color, #f9f9f9);
 }
 
 .dropdownHeader h2 {
@@ -108,13 +107,49 @@
 }
 
 .accordionContent {
-    padding: 0 1rem 1rem 1rem;
-    background: var(--card-bg, white);
-    display: none;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0 1rem;
+    transition: all 0.3s ease-in-out;
 }
 
 .accordionContent.open {
-    display: block;
+    max-height: 1000px;
+    opacity: 1;
+    padding-bottom: 1rem;
+}
+
+.themeSelector {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.themeBtn {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    background: var(--gray-bg, #edeff2);
+    border: 1px solid var(--gray-light, #eee);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-color, #333);
+    transition: all 0.2s ease;
+}
+
+.themeBtn:hover {
+    background: var(--gray-light, #dfe6e9);
+}
+
+.themeBtn.activeTheme {
+    background: var(--primary-color, #ff6b6b);
+    color: white;
+    border-color: var(--primary-color, #ff6b6b);
 }
 
 .description {
@@ -190,7 +225,7 @@
 }
 
 .buttonSecondary {
-    background: white;
+    background: var(--card-bg, white);
     color: #3498db;
     border: 1px solid #3498db;
     padding: 0.75rem 1rem;
@@ -223,7 +258,7 @@
     border-radius: 6px;
     border: 1px solid var(--gray-light, #ddd);
     font-size: 1rem;
-    background: white;
+    background: var(--card-bg, white);
 }
 
 .selectInput {
@@ -273,7 +308,7 @@
 
 .locationDropdownMenu {
     margin-top: 0.5rem;
-    background: white;
+    background: var(--card-bg, white);
     border: 1px solid var(--gray-light, #ddd);
     border-radius: 6px;
     padding: 0.5rem;
@@ -361,4 +396,20 @@
     padding: 2px 6px;
     border-radius: 4px;
     letter-spacing: 0.5px;
+}
+
+.themeSelector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.radioLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--text-color, #333);
+    cursor: pointer;
 }

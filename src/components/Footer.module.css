@@ -2,7 +2,7 @@
     width: 100%;
     padding: 2rem 1rem;
     margin-top: 4rem;
-    background-color: var(--background-rgb, #fff);
+    background-color: var(--card-bg, #fff);
     border-top: 1px solid #eaeaea;
     color: #666;
     font-size: 0.875rem;
@@ -44,7 +44,7 @@
 }
 
 .link:hover {
-    color: #000;
+    color: var(--text-color);
     text-decoration: underline;
 }
 

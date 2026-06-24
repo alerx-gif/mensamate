@@ -1,6 +1,6 @@
 {
   "name": "mensa-mate",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,7 +17,7 @@
     "dotenv": "^17.3.1",
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
-    "pocketbase": "^0.26.8",
+    "next-themes": "^0.4.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "unique-names-generator": "^4.7.1"

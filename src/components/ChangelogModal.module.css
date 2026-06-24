@@ -13,7 +13,7 @@
 
 .modal {
     background: var(--card-bg, white);
-    border-radius: 12px;
+    border-radius: 18px;
     width: 90%;
     max-width: 500px;
     max-height: 80vh;
@@ -29,7 +29,6 @@
     align-items: center;
     padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--gray-light, #eee);
-    background: var(--background-color, #f9f9f9);
 }
 
 .header h2 {
@@ -98,3 +97,11 @@
 .changesList li {
     margin-bottom: 0.25rem;
 }
+
+.sectionTitle {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-color, #333);
+

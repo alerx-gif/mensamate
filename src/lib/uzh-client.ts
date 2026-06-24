@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { Facility, Meal, Price, Allergen, Nutrition, WeeklyRota, WeeklyPlan, DayMenu } from '@/types/eth';
 
 // ─── UZH Restaurant → Food2050 URL Mapping ───────────────────────────────────
@@ -164,7 +165,7 @@ export function getUzhFacilities(): Facility[] {
  */
 async function fetchFood2050Data(url: string): Promise<any | null> {
     try {
-        const res = await fetch(url, { next: { revalidate: 300 } });
+        const res = await fetch(url, { next: { revalidate: 7200 } });
         if (!res.ok) {
             console.error(`[UZH] Food2050 fetch failed: ${res.status} for ${url}`);
             return null;
@@ -278,7 +279,7 @@ function mapDishToMeal(menuItem: any, fallbackId: number): Meal {
  * Get daily menu for a UZH facility by scraping the Food2050 weekly page
  * and filtering to the requested date.
  */
-export async function getUzhDailyMenu(
+async function getUzhDailyMenuInternal(
     facilityId: number,
     date: string
 ): Promise<WeeklyRota | null> {
@@ -385,12 +386,18 @@ export async function getUzhDailyMenu(
     }
 }
 
+export const getUzhDailyMenu = unstable_cache(
+    getUzhDailyMenuInternal,
+    ['uzh-daily-menu'],
+    { revalidate: 7200 } // 2 hours
+);
+
 // ─── Weekly Menu ──────────────────────────────────────────────────────────────
 
 /**
  * Get weekly menu for a UZH facility.
  */
-export async function getUzhWeeklyMenu(
+async function getUzhWeeklyMenuInternal(
     facilityId: number,
     date: string
 ): Promise<WeeklyPlan | null> {
@@ -435,3 +442,9 @@ export async function getUzhWeeklyMenu(
         return null;
     }
 }
+
+export const getUzhWeeklyMenu = unstable_cache(
+    getUzhWeeklyMenuInternal,
+    ['uzh-weekly-menu'],
+    { revalidate: 7200 } // 2 hours
+);

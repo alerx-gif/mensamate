@@ -5,6 +5,18 @@ export interface FacilityRaw {
     "publication-type-desc": string;
     "publication-type-desc-short": string;
     "facility-url"?: string;
+    "building"?: string;
+    "floor"?: string;
+    "room-nr"?: string;
+    "address-line-2"?: string;
+    "address-line-3"?: string;
+    "phone"?: string;
+    "caterer-name"?: string;
+    "caterer-url"?: string;
+    "manager-given-name"?: string;
+    "manager-surname"?: string;
+    "payment-option-array"?: any[];
+    "facility-feature-array"?: any[];
 }
 
 export interface FacilityResponseRaw {

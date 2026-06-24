@@ -11,7 +11,7 @@
 }
 
 .button:hover {
-    color: #000;
+    color: var(--text-color);
     text-decoration: underline;
 }
 
@@ -94,11 +94,11 @@
 }
 
 .inputError {
-    border-color: #ff4757;
+    border-color: var(--destructive);
 }
 
 .errorMessage {
-    color: #ff4757;
+    color: var(--destructive);
     font-size: 0.85rem;
     margin: 0;
 }

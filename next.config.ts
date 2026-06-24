@@ -11,7 +11,19 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**",
+        hostname: "wsrv.nl",
+      },
+      {
+        protocol: "https",
+        hostname: "app.food2050.ch",
+      },
+      {
+        protocol: "https",
+        hostname: "idapps.ethz.ch",
+      },
+      {
+        protocol: "https",
+        hostname: "storage.googleapis.com",
       },
     ],
   },

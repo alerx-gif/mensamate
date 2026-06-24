@@ -21,7 +21,7 @@
 
 .modal {
     background: var(--card-bg);
-    border-radius: 24px 24px 0 0;
+    border-radius: 18px 18px 0 0;
     width: 100vw;
     height: 94vh;
     max-width: 800px;
@@ -48,26 +48,26 @@
 
 .closeButton {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    width: 44px;
-    height: 44px;
+    top: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 10;
     transition: background 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    backdrop-filter: blur(4px);
 }
 
 .closeButton:hover {
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.6);
     transform: scale(1.05);
 }
 
@@ -77,6 +77,15 @@
     overflow-x: hidden;
     position: relative;
     width: 100%;
+    overscroll-behavior: none;
+    /* Hide scrollbar for Firefox, IE, and Edge */
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollArea::-webkit-scrollbar {
+    display: none;
 }
 
 .imageWrapper {
@@ -100,7 +109,7 @@
 
 .content {
     background: var(--card-bg);
-    border-radius: 24px 24px 0 0;
+    border-radius: 18px 18px 0 0;
     margin-top: -30px;
     padding: 30px 24px 24px 24px;
     position: relative;
@@ -145,7 +154,7 @@
 }
 
 .dietaryTag {
-    background: #2ecc71;
+    background: var(--success-color);
     color: white;
     padding: 4px 8px;
     border-radius: 4px;

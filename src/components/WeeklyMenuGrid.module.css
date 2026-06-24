@@ -64,7 +64,7 @@
     max-width: 350px;
     flex: 0 0 auto;
     scroll-snap-align: start;
-    border-right: 1px solid #eee;
+    border-right: 1px solid var(--gray-light, #eee);
     padding-right: 1.5rem;
 }
 
@@ -76,7 +76,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    color: #333;
+    color: var(--text-color);
 }
 
 .mealsList {

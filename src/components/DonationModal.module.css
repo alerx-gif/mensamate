@@ -14,9 +14,9 @@
 }
 
 .modal {
-    background: white;
+    background: var(--card-bg, white);
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: 18px;
     position: relative;
     max-width: 500px;
     width: 90%;
@@ -44,7 +44,7 @@
 
 .closeButton:hover {
     background-color: #f3f4f6;
-    color: #000;
+    color: var(--text-color);
 }
 
 .triggerButton {
@@ -61,7 +61,7 @@
 }
 
 .triggerButton:hover {
-    color: #000;
+    color: var(--text-color);
     text-decoration: underline;
 }
 
@@ -76,7 +76,7 @@
 .text {
     font-size: 1.1rem;
     line-height: 1.6;
-    color: #333;
+    color: var(--text-color);
     margin-top: 1rem;
 }
 

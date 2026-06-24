@@ -41,11 +41,13 @@ export default async function WeeklyPage({
 
             {!facilityId ? (
                 <div className={styles.emptyState}>
-                    <p>Please go back and select a restaurant first.</p>
+                    <div className={styles.emptyIcon}>📍</div>
+                    <p className={styles.emptyText}>Select a restaurant first</p>
                 </div>
             ) : !weeklyPlan || weeklyPlan.days.length === 0 ? (
                 <div className={styles.emptyState}>
-                    <p>No weekly plan found for this week.</p>
+                    <div className={styles.emptyIcon}>🍽️</div>
+                    <p className={styles.emptyText}>No menus this week</p>
                 </div>
             ) : (
                 <WeeklyMenuGrid plan={weeklyPlan} />

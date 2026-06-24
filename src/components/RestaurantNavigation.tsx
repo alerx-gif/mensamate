@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useMemo, useEffect, useTransition } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Facility } from '@/types/eth';
 import styles from './RestaurantNavigation.module.css';
 
@@ -13,17 +12,25 @@ interface RestaurantNavigationProps {
 
 export default function RestaurantNavigation({ facilities, selectedFacilityId }: RestaurantNavigationProps) {
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+    
     const currentFacilityId = searchParams.get('facility') || selectedFacilityId.toString();
+    const [optimisticFacilityId, setOptimisticFacilityId] = useState<string>(currentFacilityId);
+
+    useEffect(() => {
+        setOptimisticFacilityId(currentFacilityId);
+    }, [currentFacilityId]);
 
     const initialLocation = useMemo(() => {
-        const currentFacility = facilities.find(f => f.id.toString() === currentFacilityId);
+        const currentFacility = facilities.find(f => f.id.toString() === optimisticFacilityId);
         if (currentFacility) {
             let loc = currentFacility.location || 'Other';
             if (loc === 'Basel') loc = 'Other';
             return loc;
         }
         return 'Zentrum';
-    }, [currentFacilityId, facilities]);
+    }, [optimisticFacilityId, facilities]);
 
     const [activeLocation, setActiveLocation] = useState<string>(initialLocation);
     const [expandedLocations, setExpandedLocations] = useState<Record<string, boolean>>({});
@@ -50,13 +57,13 @@ export default function RestaurantNavigation({ facilities, selectedFacilityId }:
     }, []);
     // Sync the tab selector with the currently selected facility
     useEffect(() => {
-        const currentFacility = facilities.find(f => f.id.toString() === currentFacilityId);
+        const currentFacility = facilities.find(f => f.id.toString() === optimisticFacilityId);
         if (currentFacility) {
             let loc = currentFacility.location || 'Other';
             if (loc === 'Basel') loc = 'Other';
             setActiveLocation(loc);
         }
-    }, [currentFacilityId, facilities]);
+    }, [optimisticFacilityId, facilities]);
 
     // Priority lists
     const ZENTRUM_PRIORITY = ['Mensa Polyterrasse', 'Polysnack', 'Archimedes'];
@@ -105,7 +112,7 @@ export default function RestaurantNavigation({ facilities, selectedFacilityId }:
     useEffect(() => {
         if (locationsWithFacilities.length > 0 && !locationsWithFacilities.includes(activeLocation)) {
             // Keep the active location matched if the URL has one, else default to the first visible location
-            const currentFacility = facilities.find(f => f.id.toString() === currentFacilityId);
+            const currentFacility = facilities.find(f => f.id.toString() === optimisticFacilityId);
             let urlLoc = 'Zentrum';
             if (currentFacility) {
                 urlLoc = currentFacility.location || 'Other';
@@ -117,12 +124,27 @@ export default function RestaurantNavigation({ facilities, selectedFacilityId }:
                 setActiveLocation(locationsWithFacilities[0]);
             }
         }
-    }, [locationsWithFacilities, activeLocation, facilities, currentFacilityId]);
+    }, [locationsWithFacilities, activeLocation, facilities, optimisticFacilityId]);
 
     const getFacilityUrl = (id: number) => {
         const params = new URLSearchParams(searchParams.toString());
         params.set('facility', id.toString());
         return `/?${params.toString()}`;
+    };
+
+    const handleFacilityClick = (e: React.MouseEvent<HTMLAnchorElement>, id: number) => {
+        e.preventDefault();
+        const idStr = id.toString();
+        
+        // Don't re-navigate if already there
+        if (idStr === optimisticFacilityId) return;
+
+        setOptimisticFacilityId(idStr);
+        window.dispatchEvent(new CustomEvent('facilityNavigationStart', { detail: idStr }));
+
+        startTransition(() => {
+            router.push(getFacilityUrl(id));
+        });
     };
 
     const toggleExpand = (loc: string) => {
@@ -164,15 +186,15 @@ export default function RestaurantNavigation({ facilities, selectedFacilityId }:
             <div className={styles.scrollWrapper}>
                 <div className={styles.pillContainer}>
                     {visibleFacilities.map((facility) => (
-                        <Link
+                        <a
                             key={facility.id}
                             href={getFacilityUrl(facility.id)}
-                            prefetch={true}
-                            className={`${styles.pill} ${currentFacilityId === facility.id.toString() ? styles.activePill : ''}`}
+                            onClick={(e) => handleFacilityClick(e, facility.id)}
+                            className={`${styles.pill} ${optimisticFacilityId === facility.id.toString() ? styles.activePill : ''}`}
                             style={{ textDecoration: 'none' }}
                         >
                             {facility.shortName || facility.name}
-                        </Link>
+                        </a>
                     ))}
                 </div>
             </div>

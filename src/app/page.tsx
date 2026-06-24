@@ -4,6 +4,7 @@ import { getAllFacilities, getOpeningHours } from '@/lib/unified-client';
 import RestaurantNavigation from '@/components/RestaurantNavigation';
 import FacilityContent from '@/components/FacilityContent';
 import ContentSkeleton from '@/components/ContentSkeleton';
+import NavigationLoadingWrapper from '@/components/NavigationLoadingWrapper';
 import FacilityHeader from '@/components/FacilityHeader';
 import styles from './page.module.css';
 
@@ -47,11 +48,13 @@ export default async function Home({
     <div className={styles.main}>
       {facilities.length === 0 ? (
         <div className={styles.emptyState}>
-          <p>Failed to load restaurants.</p>
+          <div className={styles.emptyIcon}>⚠️</div>
+          <p className={styles.emptyText}>Failed to load restaurants</p>
         </div>
       ) : !selectedFacility ? (
         <div className={styles.emptyState}>
-          <p>Select a restaurant.</p>
+          <div className={styles.emptyIcon}>📍</div>
+          <p className={styles.emptyText}>Select a restaurant</p>
         </div>
       ) : (
         <>
@@ -60,7 +63,9 @@ export default async function Home({
           <RestaurantNavigation facilities={facilities} selectedFacilityId={selectedFacilityId} />
 
           <Suspense key={`content-${selectedFacility.id}`} fallback={<ContentSkeleton />}>
-            <FacilityContent selectedFacility={selectedFacility} today={today} />
+            <NavigationLoadingWrapper currentFacilityId={selectedFacility.id}>
+              <FacilityContent selectedFacility={selectedFacility} today={today} />
+            </NavigationLoadingWrapper>
           </Suspense>
         </>
       )}

@@ -72,13 +72,27 @@
 }
 
 .emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 50px;
+  padding: 60px 20px;
   color: var(--gray-dark);
-  font-size: 1.2rem;
-  background: var(--card-bg);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+}
+
+.emptyIcon {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+  opacity: 0.9;
+}
+
+.emptyText {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin: 0;
+  letter-spacing: -0.5px;
 }
 
 @media (min-width: 600px) {

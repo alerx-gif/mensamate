@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Facility } from '@/types/eth';
 import { useAllergens } from '@/lib/useAllergens';
+import { useTheme } from 'next-themes';
+import { Sun, Moon, Monitor } from 'lucide-react';
 import styles from './SettingsModal.module.css';
 
 interface SettingsModalProps {
@@ -17,6 +19,13 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     const [success, setSuccess] = useState(false);
 
     const [openSection, setOpenSection] = useState<'preferences' | 'sync' | 'allergies' | null>('preferences');
+
+    const { theme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const [facilities, setFacilities] = useState<Facility[]>([]);
     const [defaultFacility, setDefaultFacility] = useState<string>('');
@@ -146,6 +155,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                 </div>
 
                 <div className={styles.dropdownBody}>
+
                     <div className={styles.accordionSection}>
                         <button className={styles.accordionHeader} onClick={() => toggleSection('preferences')}>
                             Preferences
@@ -161,12 +171,60 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                                 onChange={handleSaveDefaultFacility}
                             >
                                 <option value="">None</option>
-                                {facilities.map(f => (
-                                    <option key={f.id} value={f.id}>
-                                        {f.name}
-                                    </option>
+                                {Object.entries(
+                                    facilities.reduce((acc, f) => {
+                                        let loc = f.location || 'Other';
+                                        if (!['Zentrum', 'Hönggerberg', 'UZH'].includes(loc)) {
+                                            loc = 'Other';
+                                        }
+                                        if (!acc[loc]) acc[loc] = [];
+                                        acc[loc].push(f);
+                                        return acc;
+                                    }, {} as Record<string, Facility[]>)
+                                )
+                                .sort((a, b) => {
+                                    const order = ['Zentrum', 'Hönggerberg', 'UZH', 'Other'];
+                                    return order.indexOf(a[0]) - order.indexOf(b[0]);
+                                })
+                                .map(([location, facs]) => (
+                                    <optgroup key={location} label={location}>
+                                        {facs.map(f => (
+                                            <option key={f.id} value={f.id}>
+                                                {f.name}
+                                            </option>
+                                        ))}
+                                    </optgroup>
                                 ))}
                             </select>
+
+                            <p className={styles.description} style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
+                                Appearance
+                            </p>
+                            {mounted && (
+                                <div className={styles.themeSelector}>
+                                    <button 
+                                        className={`${styles.themeBtn} ${theme === 'light' ? styles.activeTheme : ''}`}
+                                        onClick={() => setTheme('light')}
+                                        title="Light Mode"
+                                    >
+                                        <Sun size={20} />
+                                    </button>
+                                    <button 
+                                        className={`${styles.themeBtn} ${theme === 'dark' ? styles.activeTheme : ''}`}
+                                        onClick={() => setTheme('dark')}
+                                        title="Dark Mode"
+                                    >
+                                        <Moon size={20} />
+                                    </button>
+                                    <button 
+                                        className={`${styles.themeBtn} ${theme === 'system' ? styles.activeTheme : ''}`}
+                                        onClick={() => setTheme('system')}
+                                        title="System Auto"
+                                    >
+                                        <Monitor size={20} />
+                                    </button>
+                                </div>
+                            )}
 
                             <p className={styles.description} style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
                                 Navigation Menu

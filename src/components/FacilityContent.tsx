@@ -2,6 +2,7 @@ import { getDailyMenu } from '@/lib/unified-client';
 import { Facility } from '@/types/eth';
 import MenuDisplay from './MenuDisplay';
 import styles from '../app/page.module.css';
+import { ArrowRight } from 'lucide-react';
 
 interface FacilityContentProps {
     selectedFacility: Facility;
@@ -21,7 +22,8 @@ export default async function FacilityContent({
         <>
             {displayedMenus.length === 0 ? (
                 <div className={styles.emptyState}>
-                    <p>No menus found for today ({today}) at this location.</p>
+                    <div className={styles.emptyIcon}>🍽️</div>
+                    <p className={styles.emptyText}>No menus today</p>
                 </div>
             ) : (
                 <MenuDisplay meals={displayedMenus} facilityId={selectedFacility.id} date={today} />
@@ -29,16 +31,21 @@ export default async function FacilityContent({
 
             <div style={{ textAlign: 'center', margin: '2rem 0 1rem 0' }}>
                 <a href={`/week?facility=${selectedFacility.id}`} style={{
-                    display: 'inline-block',
-                    padding: '0.8rem 1.5rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
                     backgroundColor: 'var(--text-color)',
-                    color: 'white',
+                    color: 'var(--card-bg, white)',
+                    border: '1px solid var(--text-color)',
                     borderRadius: '50px',
                     textDecoration: 'none',
-                    fontWeight: '600',
-                    boxShadow: 'var(--shadow-sm)'
+                    fontWeight: '500',
+                    fontSize: '0.9rem',
+                    boxShadow: 'var(--shadow-sm)',
+                    transition: 'all 0.2s ease'
                 }}>
-                    View Weekly Menu
+                    Weekly Menu <ArrowRight size={18} />
                 </a>
             </div>
         </>

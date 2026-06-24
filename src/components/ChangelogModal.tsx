@@ -32,14 +32,58 @@ export default function ChangelogModal({ onClose }: ChangelogModalProps) {
                                 <span className={styles.versionNumber}>v{release.version}</span>
                                 <span className={styles.versionDate}>{release.date}</span>
                             </div>
-                            <ul className={styles.changesList}>
-                                {release.changes.map((change: string, idx: number) => (
-                                    <li key={idx}>{change}</li>
-                                ))}
-                            </ul>
+                            {release.features && release.features.length > 0 && (
+                                <div>
+                                    <h4 className={styles.sectionTitle}>New Features</h4>
+                                    <ul className={styles.changesList}>
+                                        {release.features.map((change: any, idx: number) => (
+                                            <li key={idx}>
+                                                {typeof change === 'string' ? change : change.text}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            
+                            {release.improvements && release.improvements.length > 0 && (
+                                <div>
+                                    <h4 className={styles.sectionTitle}>Improvements</h4>
+                                    <ul className={styles.changesList}>
+                                        {release.improvements.map((change: any, idx: number) => (
+                                            <li key={idx}>
+                                                {typeof change === 'string' ? change : change.text}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {release.fixes && release.fixes.length > 0 && (
+                                <div>
+                                    <h4 className={styles.sectionTitle}>Bug Fixes</h4>
+                                    <ul className={styles.changesList}>
+                                        {release.fixes.map((change: any, idx: number) => (
+                                            <li key={idx}>
+                                                {typeof change === 'string' ? change : change.text}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {release.changes && release.changes.length > 0 && (
+                                <ul className={styles.changesList} style={{ marginTop: '0.75rem' }}>
+                                    {release.changes.map((change: any, idx: number) => (
+                                        <li key={idx}>
+                                            {typeof change === 'string' ? change : change.text}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
                             {release.knownIssues && release.knownIssues.length > 0 && (
-                                <div style={{ marginTop: '0.75rem' }}>
-                                    <strong style={{ fontSize: '0.9rem', color: '#e74c3c' }}>Known Issues:</strong>
+                                <div>
+                                    <h4 className={styles.sectionTitle} style={{ color: '#e74c3c' }}>Known Issues</h4>
                                     <ul className={styles.changesList} style={{ color: '#e74c3c', fontSize: '0.85rem' }}>
                                         {release.knownIssues.map((issue: string, idx: number) => (
                                             <li key={idx}>{issue}</li>

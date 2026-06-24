@@ -5,8 +5,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
-    background: var(--background-color);
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 12px 20px;
+    background: var(--navbar-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid transparent;
     transition: box-shadow 0.3s ease, border-bottom-color 0.3s ease;
 }
@@ -25,7 +27,7 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: -1px;
-    color: black;
+    color: var(--text-color);
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
@@ -44,7 +46,14 @@
     text-transform: uppercase;
 }
 
-.settingsButton {
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.iconButton {
     background: none;
     border: none;
     cursor: pointer;
@@ -55,11 +64,9 @@
     padding: 8px;
     border-radius: 50%;
     transition: background-color 0.2s, color 0.2s;
-    margin-left: auto;
-    /* Push to the right edge */
 }
 
-.settingsButton:hover {
+.iconButton:hover {
     background-color: var(--gray-light);
-    color: black;
+    color: var(--text-color);
 }

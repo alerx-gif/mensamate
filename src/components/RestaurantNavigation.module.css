@@ -59,7 +59,7 @@
 }
 
 .activeTab {
-    background: white;
+    background: var(--card-bg, white);
     /* Active state highlights */
     color: var(--text-color);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
@@ -121,7 +121,7 @@
 
 .activePill {
     background: var(--text-color);
-    color: white;
+    color: var(--card-bg, white);
     border-color: var(--text-color);
     box-shadow: var(--shadow-sm);
 }
@@ -169,7 +169,7 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: white;
+    background: var(--card-bg, white);
     border: 1px solid var(--gray-light);
     border-radius: 50%;
     width: 32px;

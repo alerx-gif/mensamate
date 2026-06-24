@@ -1,10 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/components/auth/AuthProvider";
-import DefaultFacilityRedirect from "@/components/DefaultFacilityRedirect";
-import { Suspense } from "react";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Mensa Mate",
@@ -12,16 +11,22 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Mensa Mate",
   },
   icons: {
     icon: "/favicon.ico",
-    apple: "/apple-icon.png",
   },
   formatDetection: {
     telephone: false,
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
 };
 
 import { Analytics } from "@vercel/analytics/react";
@@ -32,19 +37,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <AuthProvider>
-          <Navbar />
-          <main className="container">
-            <Suspense fallback={null}>
-              <DefaultFacilityRedirect />
-            </Suspense>
-            {children}
-          </main>
-          <Footer />
-          <Analytics />
-        </AuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AuthProvider>
+            <Navbar />
+            <main className="container">
+              {children}
+            </main>
+            <Footer />
+          </AuthProvider>
+        </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

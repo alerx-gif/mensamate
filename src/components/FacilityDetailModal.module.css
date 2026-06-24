@@ -35,7 +35,7 @@
 
 .modal {
     background: var(--card-bg);
-    border-radius: 20px;
+    border-radius: 18px;
     max-width: 500px;
     width: 100%;
     max-height: 85vh;
@@ -92,7 +92,7 @@
 
 .closeButton:hover {
     background: var(--text-color);
-    color: white;
+    color: var(--card-bg, white);
 }
 
 .content {
@@ -118,8 +118,8 @@
 }
 
 .infoCard {
-    background: #f8f9fa;
-    border-radius: 12px;
+    background: var(--gray-bg);
+    border-radius: 18px;
     padding: 14px 16px;
     display: flex;
     flex-direction: column;
@@ -158,21 +158,21 @@
 }
 
 .tag {
-    background: #e8f4f8;
+    background: rgba(10, 126, 164, 0.1);
     color: #0a7ea4;
     padding: 6px 12px;
-    border-radius: 20px;
+    border-radius: 18px;
     font-size: 0.8rem;
     font-weight: 500;
 }
 
 .paymentTag {
-    background: #e8f5e9;
+    background: rgba(46, 125, 50, 0.1);
     color: #2e7d32;
 }
 
 .featureTag {
-    background: #fff3e0;
+    background: rgba(230, 81, 0, 0.1);
     color: #e65100;
 }
 
@@ -201,7 +201,7 @@
     justify-content: space-between;
     font-size: 0.9rem;
     padding: 8px 12px;
-    background: #f8f9fa;
+    background: var(--gray-bg);
     border-radius: 8px;
 }
 
@@ -229,4 +229,19 @@
 
 .catererInfo a:hover {
     text-decoration: underline;
+}
+
+:global(.dark) .tag {
+    color: #4fc3f7;
+    background: rgba(79, 195, 247, 0.2);
+}
+
+:global(.dark) .paymentTag {
+    color: #81c784;
+    background: rgba(129, 199, 132, 0.2);
+}
+
+:global(.dark) .featureTag {
+    color: #ffb74d;
+    background: rgba(255, 183, 77, 0.2);
 }

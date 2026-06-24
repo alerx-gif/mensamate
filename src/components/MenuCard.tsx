@@ -10,16 +10,18 @@ import { useFavorites } from '@/lib/useFavorites';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { isUzhFacility } from '@/lib/uzh-client';
 import { useAllergens } from '@/lib/useAllergens';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, BicepsFlexed, Scale } from 'lucide-react';
 
 interface MenuCardProps {
     meal: Meal;
     viewMode?: 'card' | 'list';
     index?: number;
     facilityId?: number;
+    isHighlighted?: boolean;
+    activeFilter?: 'none' | 'protein' | 'balanced';
 }
 
-export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityId }: MenuCardProps) {
+export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityId, isHighlighted = false, activeFilter = 'none' }: MenuCardProps) {
     // Support both ETH (imageId) and UZH (imageUrl) images
     const imageUrl = meal.imageUrl || getImageUrl(meal.imageId);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,7 +53,7 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
     return (
         <>
             <article
-                className={`${styles.card} ${viewMode === 'list' ? styles.cardList : ''}`}
+                className={`${styles.card} ${viewMode === 'list' ? styles.cardList : ''} ${isHighlighted ? styles.highlighted : ''}`}
                 style={{ animationDelay: `${index * 0.08}s` }}
                 onClick={() => setIsModalOpen(true)}
             >
@@ -66,6 +68,10 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
                             sizes="(max-width: 768px) 100vw, 400px" 
                             priority={index < 2}
                         />
+                        <div className={styles.leftTagsContainer}>
+                            {isHighlighted && activeFilter === 'protein' && <span className={styles.topPickTag} title="Highest Protein"><BicepsFlexed size={16} /></span>}
+                            {isHighlighted && activeFilter === 'balanced' && <span className={styles.topPickTag} title="Most Balanced"><Scale size={16} /></span>}
+                        </div>
                         <div className={styles.tagsContainer}>
                             {/* Hide category label in list view */}
                             {viewMode === 'card' && meal.label && (
@@ -78,6 +84,8 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
                 <div className={styles.content}>
                     <div className={styles.header}>
                         <h3 className={styles.title}>
+                            {!imageUrl && isHighlighted && activeFilter === 'protein' && <span className={styles.topPickTagInlineLeft} title="Highest Protein"><BicepsFlexed size={14} /></span>}
+                            {!imageUrl && isHighlighted && activeFilter === 'balanced' && <span className={styles.topPickTagInlineLeft} title="Most Balanced"><Scale size={14} /></span>}
                             {meal.name}
                         </h3>
                         {!imageUrl && dietaryLabel && <span className={styles.dietaryTagInline}>{dietaryLabel}</span>}
@@ -111,7 +119,7 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
             </article>
 
             {isModalOpen && (
-                <MenuModal meal={meal} onClose={() => setIsModalOpen(false)} />
+                <MenuModal meal={meal} onClose={() => setIsModalOpen(false)} facilityId={facilityId} />
             )}
         </>
     );

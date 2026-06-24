@@ -1,5 +1,32 @@
 [
   {
+    "version": "1.6.0",
+    "date": "2026-06-20",
+    "features": [
+      {
+        "text": "Added ETH Student Card (Legi) quick access directly from the navigation bar",
+        "highlight": true
+      },
+      {
+        "text": "Added new Protein and Balanced highlight filters to instantly find top macro picks",
+        "highlight": true
+      }
+    ],
+    "improvements": [
+      "Implemented instantaneous client-side navigation for zero-delay restaurant switching",
+      "Significantly improved app performance with aggressive API caching",
+      "Redesigned empty states with a cleaner look and fun icons",
+      "Refined the Menu Detail UI with a more discrete close button",
+      "Disabled rubberbanding in the Menu Detail view for a native-feeling scroll on iOS",
+      "Cleaned up dead code and internal architecture"
+    ],
+    "fixes": [
+      "Fixed an issue causing UZH meal images to crash the app",
+      "Corrected nutrition labels to dynamically show 'per serving' for UZH and 'per 100g' for ETH",
+      "Fixed an issue where the iOS home screen icon wouldn't display correctly"
+    ]
+  },
+  {
     "version": "1.5.0",
     "date": "2026-06-19",
     "changes": [

@@ -1,0 +1,107 @@
+.overlay {
+    position: fixed;
+    top: calc(60px + env(safe-area-inset-top, 0px));
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    z-index: 1000;
+}
+
+.modalContainer {
+    position: absolute;
+    top: 10px;
+    right: 60px; /* Offset to align below the legi button */
+    background: var(--card-bg, white);
+    border-radius: 18px;
+    width: 320px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    overflow: hidden;
+    border: 1px solid var(--gray-light, #eee);
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    .modalContainer {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        right: auto;
+        width: 90%;
+        max-width: 340px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .overlay {
+        background-color: rgba(0, 0, 0, 0.4);
+        top: 0;
+    }
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--gray-light, #eee);
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-color, #333);
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gray-dark, #666);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalBody {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.description {
+    font-size: 0.95rem;
+    color: var(--gray-dark, #666);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 0.85rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.button:hover {
+    background: #2980b9;
+}
+
+.externalIcon {
+    opacity: 0.9;
+}

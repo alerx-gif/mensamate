@@ -6,7 +6,7 @@ const CLIENT_ID = 'ethz-wcms';
 export async function getFacilities(lang: 'de' | 'en' = 'de'): Promise<Facility[]> {
     try {
         const url = `${API_BASE}/facilities?client-id=${CLIENT_ID}&lang=${lang}&rs-first=0&rs-size=200`;
-        const res = await fetch(url, { next: { revalidate: 3600 } });
+        const res = await fetch(url, { next: { revalidate: 43200 } });
 
         if (!res.ok) {
             console.error(`Fetch facilities failed: ${res.status} ${res.statusText}`);
@@ -26,21 +26,21 @@ export async function getFacilities(lang: 'de' | 'en' = 'de'): Promise<Facility[
                 else if (facilityUrl.includes('/oerlikon/')) location = 'Oerlikon';
 
                 // Map manager name
-                const managerGiven = (f as any)["manager-given-name"];
-                const managerSurname = (f as any)["manager-surname"];
+                const managerGiven = f["manager-given-name"];
+                const managerSurname = f["manager-surname"];
                 const managerName = managerGiven && managerSurname
                     ? `${managerGiven} ${managerSurname}`
                     : undefined;
 
                 // Map payment options
-                const paymentOptions = (f as any)["payment-option-array"]?.map((p: any) => ({
+                const paymentOptions = f["payment-option-array"]?.map((p: any) => ({
                     code: p.code,
                     desc: p.desc,
                     descShort: p["desc-short"]
                 })) || [];
 
                 // Map features
-                const features = (f as any)["facility-feature-array"]?.map((feat: any) => ({
+                const features = f["facility-feature-array"]?.map((feat: any) => ({
                     code: feat.code,
                     desc: feat.desc,
                     descShort: feat["desc-short"]
@@ -55,15 +55,15 @@ export async function getFacilities(lang: 'de' | 'en' = 'de'): Promise<Facility[
                     type: f["publication-type-desc"],
                     location: location,
                     // Extended details
-                    building: (f as any).building,
-                    floor: (f as any).floor,
-                    roomNr: (f as any)["room-nr"],
-                    addressLine2: (f as any)["address-line-2"],
-                    addressLine3: (f as any)["address-line-3"],
-                    phone: (f as any).phone,
+                    building: f.building,
+                    floor: f.floor,
+                    roomNr: f["room-nr"],
+                    addressLine2: f["address-line-2"],
+                    addressLine3: f["address-line-3"],
+                    phone: f.phone,
                     facilityUrl: facilityUrl || undefined,
-                    catererName: (f as any)["caterer-name"],
-                    catererUrl: (f as any)["caterer-url"],
+                    catererName: f["caterer-name"],
+                    catererUrl: f["caterer-url"],
                     managerName: managerName,
                     paymentOptions: paymentOptions,
                     features: features
@@ -293,16 +293,6 @@ export function getImageUrl(imageId: number | undefined): string | null {
     return `https://wsrv.nl/?url=${encodeURIComponent(originalUrl)}&q=80`;
 }
 
-/**
- * Extract opening hours from a weekly rota for a specific day.
- */
-export function extractOpeningHours(weeklyRota: WeeklyRota | null, date: string): import('@/types/eth').OpeningHours[] {
-    if (!weeklyRota) return [];
-
-    // We need to fetch raw data to get opening hours, but for now we'll return empty
-    // since WeeklyRota doesn't contain the raw opening hour data
-    return [];
-}
 
 /**
  * Get opening hours for a facility on a specific day.
@@ -328,7 +318,7 @@ export async function getOpeningHours(
 
         const url = `${API_BASE}/weeklyrotas?client-id=${CLIENT_ID}&lang=${lang}&facility=${facilityId}&valid-after=${validAfter}&valid-before=${validBefore}&rs-first=0&rs-size=50`;
 
-        const res = await fetch(url, { next: { revalidate: 60 } });
+        const res = await fetch(url, { next: { revalidate: 43200 } });
         if (!res.ok) return [];
 
         const text = await res.text();
