@@ -88,7 +88,6 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
                                 </div>
                             )}
                         </div>
-                        </div>
                     </div>
                 </div>
             </article>
