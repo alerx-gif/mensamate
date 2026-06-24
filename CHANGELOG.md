@@ -1,5 +1,11 @@
 # mensa-mate
 
+## 1.7.0
+
+### Minor Changes
+
+- b583676: Added DSGVO regulatory pages (Impressum and Privacy Policy) with language support, and a math captcha for the feedback button.
+
 ## 1.6.0
 
 ### Minor Changes
@@ -20,6 +26,7 @@
 - Grouped and sorted 'Favorite Mensa' settings locations (Zentrum, Hönggerberg, UZH, Other).
 - Fixed a bug on mobile where the top navbar overlapped the item detail view.
 - Updated the weekly menu button style and added an arrow indicator.
+
 ## 1.5.0
 
 ### Major Changes
