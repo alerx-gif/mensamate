@@ -165,6 +165,13 @@ export interface Facility {
     features?: FacilityFeature[];
 }
 
+/**
+ * The subset of Facility the client-side navigation actually reads. Passing full
+ * Facility objects into a client component serializes every extended detail
+ * (payment options, features, address, caterer) into the RSC payload unused.
+ */
+export type FacilityNavItem = Pick<Facility, 'id' | 'name' | 'shortName' | 'location'>;
+
 export interface PaymentOption {
     code: number;
     desc: string;

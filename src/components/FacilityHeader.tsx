@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { Facility, OpeningHours } from '@/types/eth';
-import FacilityDetailModal from './FacilityDetailModal';
 import styles from './FacilityHeader.module.css';
+import dynamic from 'next/dynamic';
+
+const FacilityDetailModal = dynamic(() => import('./FacilityDetailModal'), { ssr: false });
 
 interface FacilityHeaderProps {
     facility: Facility;

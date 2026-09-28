@@ -8,16 +8,29 @@ import { useAllergens } from '@/lib/useAllergens';
 import { PieChart, Table } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import styles from './MenuModal.module.css';
+import wsrvImageLoader from '@/lib/imageLoader';
+
+/** Matches the card's most common srcset pick on phones (375px @ 2x). */
+const FALLBACK_IMAGE_WIDTH = 750;
 
 interface MenuModalProps {
     meal: Meal;
+    /**
+     * The URL the card's image actually loaded (its `currentSrc`). Reusing it
+     * means opening the modal is served from the browser cache.
+     */
+    imageSrc?: string;
     onClose: () => void;
     facilityId?: number;
 }
 
-export default function MenuModal({ meal, onClose, facilityId }: MenuModalProps) {
+export default function MenuModal({ meal, imageSrc, onClose, facilityId }: MenuModalProps) {
     // Support both ETH (imageId) and UZH (imageUrl) images
-    const imageUrl = meal.imageUrl || getImageUrl(meal.imageId);
+    const sourceUrl = meal.imageUrl || getImageUrl(meal.imageId);
+    // Fall back to the same wsrv variant rather than the raw upstream original,
+    // which is a separate, full-size download.
+    const imageUrl = imageSrc
+        || (sourceUrl ? wsrvImageLoader({ src: sourceUrl, width: FALLBACK_IMAGE_WIDTH }) : null);
     const [isVisible, setIsVisible] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [showScrollIndicator, setShowScrollIndicator] = useState(false);
@@ -95,6 +108,14 @@ export default function MenuModal({ meal, onClose, facilityId }: MenuModalProps)
 
     const { selectedAllergens } = useAllergens();
 
+    // A 0 price means the source did not provide one (e.g. UZH meals opened
+    // from the weekly view), so leave it out rather than show "CHF 0.00".
+    const priceRows = [
+        { label: 'Student', amount: meal.prices.student },
+        { label: 'Staff', amount: meal.prices.staff },
+        { label: 'External', amount: meal.prices.external },
+    ].filter(row => row.amount > 0);
+
     const modalStyle: React.CSSProperties = {
         transform: isClosing ? 'translateY(100vh)' : (swipeOffset > 0 ? `translateY(${swipeOffset}px)` : undefined),
         transition: touchStartY && !isClosing ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -133,23 +154,19 @@ export default function MenuModal({ meal, onClose, facilityId }: MenuModalProps)
 
                         <p className={styles.description}>{meal.description}</p>
 
-                        <div className={styles.section}>
-                            <h4 className={styles.sectionTitle}>Prices</h4>
-                            <div className={styles.prices}>
-                                <div className={styles.priceItem}>
-                                    <span className={styles.priceLabel}>Student</span>
-                                    <span className={styles.priceValue}>CHF {meal.prices.student.toFixed(2)}</span>
-                                </div>
-                                <div className={styles.priceItem}>
-                                    <span className={styles.priceLabel}>Staff</span>
-                                    <span className={styles.priceValue}>CHF {meal.prices.staff.toFixed(2)}</span>
-                                </div>
-                                <div className={styles.priceItem}>
-                                    <span className={styles.priceLabel}>External</span>
-                                    <span className={styles.priceValue}>CHF {meal.prices.external.toFixed(2)}</span>
+                        {priceRows.length > 0 && (
+                            <div className={styles.section}>
+                                <h4 className={styles.sectionTitle}>Prices</h4>
+                                <div className={styles.prices}>
+                                    {priceRows.map(({ label, amount }) => (
+                                        <div key={label} className={styles.priceItem}>
+                                            <span className={styles.priceLabel}>{label}</span>
+                                            <span className={styles.priceValue}>CHF {amount.toFixed(2)}</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         {meal.allergens && meal.allergens.length > 0 && (
                             <div className={styles.section}>

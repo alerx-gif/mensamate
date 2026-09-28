@@ -1,359 +1,295 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/components/auth/AuthProvider';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Facility } from '@/types/eth';
 import { useAllergens } from '@/lib/useAllergens';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon, Monitor, X, ChevronUp, ChevronDown } from 'lucide-react';
 import styles from './SettingsModal.module.css';
 
 interface SettingsModalProps {
     onClose: () => void;
 }
 
+const ALL_LOCATIONS = ['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other'];
+const LOCATION_GROUP_ORDER = ['Zentrum', 'Hönggerberg', 'UZH', 'Other'];
+
+const THEMES = [
+    { value: 'light', label: 'Light', Icon: Sun },
+    { value: 'dark', label: 'Dark', Icon: Moon },
+    { value: 'system', label: 'System', Icon: Monitor },
+] as const;
+
 export default function SettingsModal({ onClose }: SettingsModalProps) {
-    const { username, signInWithUsername, isLoading } = useAuth();
-    const [syncInput, setSyncInput] = useState('');
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
-
-    const [openSection, setOpenSection] = useState<'preferences' | 'sync' | 'allergies' | null>('preferences');
-
     const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    const [facilities, setFacilities] = useState<Facility[]>([]);
-    const [defaultFacility, setDefaultFacility] = useState<string>('');
-    const [visibleLocations, setVisibleLocations] = useState<string[]>(['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other']);
-    const [locationOrder, setLocationOrder] = useState<string[]>(['Zentrum', 'Hönggerberg', 'Oerlikon', 'UZH', 'Other']);
-    const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
-
     const { knownAllergens, selectedAllergens, toggleAllergen, fetchAndMergeAllergens } = useAllergens();
 
+    const [mounted, setMounted] = useState(false);
+    const [facilities, setFacilities] = useState<Facility[]>([]);
+    const [defaultFacility, setDefaultFacility] = useState('');
+    const [visibleLocations, setVisibleLocations] = useState<string[]>(ALL_LOCATIONS);
+    const [locationOrder, setLocationOrder] = useState<string[]>(ALL_LOCATIONS);
+
+    const panelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => setMounted(true), []);
+
+    // Escape to dismiss, and keep Tab inside the dialog while it is open.
     useEffect(() => {
-        // Fetch facilities
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                event.stopPropagation();
+                onClose();
+                return;
+            }
+            if (event.key !== 'Tab' || !panelRef.current) return;
+
+            const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+
+        document.addEventListener('keydown', onKeyDown);
+
+        // Stop the page behind the dialog from scrolling with it.
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        const previouslyFocused = document.activeElement as HTMLElement | null;
+        panelRef.current?.focus();
+
+        return () => {
+            document.removeEventListener('keydown', onKeyDown);
+            document.body.style.overflow = previousOverflow;
+            previouslyFocused?.focus?.();
+        };
+    }, [onClose]);
+
+    useEffect(() => {
         fetch('/api/facilities')
             .then(res => res.json())
-            .then(data => {
-                setFacilities(data);
-            })
-            .catch(err => console.error("Failed to fetch facilities", err));
+            .then(setFacilities)
+            .catch(err => console.error('Failed to fetch facilities', err));
 
-        // Load existing preference
-        const saved = localStorage.getItem('defaultFacility');
-        if (saved) {
-            setDefaultFacility(saved);
-        }
+        const savedFacility = localStorage.getItem('defaultFacility');
+        if (savedFacility) setDefaultFacility(savedFacility);
 
-        const savedOrder = localStorage.getItem('locationOrder');
-        if (savedOrder) {
+        const read = (key: string, fallback: string[]) => {
             try {
-                setLocationOrder(JSON.parse(savedOrder));
-            } catch (e) { }
-        }
+                const raw = localStorage.getItem(key);
+                return raw ? (JSON.parse(raw) as string[]) : fallback;
+            } catch {
+                return fallback;
+            }
+        };
+        setLocationOrder(read('locationOrder', ALL_LOCATIONS));
+        setVisibleLocations(read('visibleLocations', ALL_LOCATIONS));
+    }, []);
 
-        const savedLocs = localStorage.getItem('visibleLocations');
-        if (savedLocs) {
-            try {
-                setVisibleLocations(JSON.parse(savedLocs));
-            } catch (e) { }
-        }
+    // Allergens are always on screen now, so load them once rather than on expand.
+    useEffect(() => {
+        fetchAndMergeAllergens();
     }, [fetchAndMergeAllergens]);
 
-    useEffect(() => {
-        // Fetch known allergens automatically if none are known (initial populate) 
-        // Or consider just calling it every time settings is opened
-        if (openSection === 'allergies') {
-            fetchAndMergeAllergens();
-        }
-    }, [openSection, fetchAndMergeAllergens]);
+    const groupedFacilities = useMemo(() => {
+        const groups = facilities.reduce((acc, facility) => {
+            const raw = facility.location || 'Other';
+            const key = LOCATION_GROUP_ORDER.includes(raw) ? raw : 'Other';
+            (acc[key] ||= []).push(facility);
+            return acc;
+        }, {} as Record<string, Facility[]>);
 
-    const handleToggleLocation = (loc: string) => {
-        let updated: string[];
-        if (visibleLocations.includes(loc)) {
-            updated = visibleLocations.filter(l => l !== loc);
-            if (updated.length === 0) return; // keep at least one
-        } else {
-            updated = [...visibleLocations, loc];
-        }
+        return LOCATION_GROUP_ORDER
+            .filter(key => groups[key]?.length)
+            .map(key => [key, groups[key]] as const);
+    }, [facilities]);
+
+    const persistLocations = useCallback((visible: string[], order: string[]) => {
+        localStorage.setItem('visibleLocations', JSON.stringify(visible));
+        localStorage.setItem('locationOrder', JSON.stringify(order));
+        window.dispatchEvent(new Event('locationsUpdated'));
+    }, []);
+
+    const handleToggleLocation = (location: string) => {
+        const isVisible = visibleLocations.includes(location);
+        // Hiding the last one would leave the navigation empty.
+        if (isVisible && visibleLocations.length === 1) return;
+
+        const updated = isVisible
+            ? visibleLocations.filter(entry => entry !== location)
+            : [...visibleLocations, location];
+
         setVisibleLocations(updated);
-        localStorage.setItem('visibleLocations', JSON.stringify(updated));
-        window.dispatchEvent(new Event('locationsUpdated'));
+        persistLocations(updated, locationOrder);
     };
 
-    const handleMoveLocation = (index: number, direction: 'up' | 'down') => {
-        if (direction === 'up' && index === 0) return;
-        if (direction === 'down' && index === locationOrder.length - 1) return;
+    const handleMoveLocation = (index: number, direction: -1 | 1) => {
+        const target = index + direction;
+        if (target < 0 || target >= locationOrder.length) return;
 
-        const newOrder = [...locationOrder];
-        const swapIndex = direction === 'up' ? index - 1 : index + 1;
+        const updated = [...locationOrder];
+        [updated[index], updated[target]] = [updated[target], updated[index]];
 
-        [newOrder[index], newOrder[swapIndex]] = [newOrder[swapIndex], newOrder[index]];
-
-        setLocationOrder(newOrder);
-        localStorage.setItem('locationOrder', JSON.stringify(newOrder));
-        window.dispatchEvent(new Event('locationsUpdated'));
+        setLocationOrder(updated);
+        persistLocations(visibleLocations, updated);
     };
 
-    const handleSaveDefaultFacility = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value;
-        setDefaultFacility(val);
-        localStorage.setItem('defaultFacility', val);
-        document.cookie = `defaultFacility=${val}; path=/; max-age=31536000`;
-    };
-
-    const handleSync = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setSuccess(false);
-
-        if (!syncInput || !syncInput.includes('#')) {
-            setError("Please enter a valid Sync Code (e.g., HappyPanda#1234)");
-            return;
-        }
-
-        const { error: syncError } = await signInWithUsername(syncInput.trim());
-
-        if (syncError) {
-            setError("Invalid Sync Code or network error.");
-        } else {
-            setSuccess(true);
-            setTimeout(() => {
-                onClose();
-            }, 1500);
-        }
-    };
-
-    const copyToClipboard = () => {
-        if (username) {
-            navigator.clipboard.writeText(username);
-            setSuccess(true);
-            setTimeout(() => setSuccess(false), 2000);
-        }
-    };
-
-    const toggleSection = (section: 'preferences' | 'sync' | 'allergies') => {
-        setOpenSection(openSection === section ? null : section);
+    const handleSaveDefaultFacility = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = event.target.value;
+        setDefaultFacility(value);
+        localStorage.setItem('defaultFacility', value);
+        document.cookie = `defaultFacility=${value}; path=/; max-age=31536000`;
     };
 
     return (
-        <div className={styles.overlay} onClick={onClose}>
-            <div className={styles.dropdownContainer} onClick={(e) => e.stopPropagation()}>
-                <div className={styles.dropdownHeader}>
-                    <h2>Settings</h2>
-                    <button className={styles.closeButton} onClick={onClose}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
+        <div className={styles.scrim} onClick={onClose}>
+            <div
+                ref={panelRef}
+                className={styles.panel}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="settings-title"
+                tabIndex={-1}
+                onClick={event => event.stopPropagation()}
+            >
+                <header className={styles.header}>
+                    <h2 id="settings-title" className={styles.title}>Settings</h2>
+                    <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Close settings">
+                        <X size={20} />
                     </button>
-                </div>
+                </header>
 
-                <div className={styles.dropdownBody}>
-
-                    <div className={styles.accordionSection}>
-                        <button className={styles.accordionHeader} onClick={() => toggleSection('preferences')}>
-                            Preferences
-                            <span className={`${styles.accordionIcon} ${openSection === 'preferences' ? styles.open : ''}`}>▼</span>
-                        </button>
-                        <div className={`${styles.accordionContent} ${openSection === 'preferences' ? styles.open : ''}`}>
-                            <p className={styles.description} style={{ marginTop: '1rem' }}>
-                                Choose your default favorite Mensa to show when you launch the app.
-                            </p>
-                            <select
-                                className={styles.selectInput}
-                                value={defaultFacility}
-                                onChange={handleSaveDefaultFacility}
-                            >
-                                <option value="">None</option>
-                                {Object.entries(
-                                    facilities.reduce((acc, f) => {
-                                        let loc = f.location || 'Other';
-                                        if (!['Zentrum', 'Hönggerberg', 'UZH'].includes(loc)) {
-                                            loc = 'Other';
-                                        }
-                                        if (!acc[loc]) acc[loc] = [];
-                                        acc[loc].push(f);
-                                        return acc;
-                                    }, {} as Record<string, Facility[]>)
-                                )
-                                .sort((a, b) => {
-                                    const order = ['Zentrum', 'Hönggerberg', 'UZH', 'Other'];
-                                    return order.indexOf(a[0]) - order.indexOf(b[0]);
-                                })
-                                .map(([location, facs]) => (
-                                    <optgroup key={location} label={location}>
-                                        {facs.map(f => (
-                                            <option key={f.id} value={f.id}>
-                                                {f.name}
-                                            </option>
-                                        ))}
-                                    </optgroup>
+                <div className={styles.body}>
+                    <section className={styles.section}>
+                        <h3 className={styles.sectionTitle}>Appearance</h3>
+                        {mounted && (
+                            <div className={styles.segmented} role="radiogroup" aria-label="Appearance">
+                                {THEMES.map(({ value, label, Icon }) => (
+                                    <button
+                                        key={value}
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={theme === value}
+                                        className={`${styles.segment} ${theme === value ? styles.segmentActive : ''}`}
+                                        onClick={() => setTheme(value)}
+                                    >
+                                        <Icon size={18} />
+                                        <span>{label}</span>
+                                    </button>
                                 ))}
-                            </select>
-
-                            <p className={styles.description} style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
-                                Appearance
-                            </p>
-                            {mounted && (
-                                <div className={styles.themeSelector}>
-                                    <button 
-                                        className={`${styles.themeBtn} ${theme === 'light' ? styles.activeTheme : ''}`}
-                                        onClick={() => setTheme('light')}
-                                        title="Light Mode"
-                                    >
-                                        <Sun size={20} />
-                                    </button>
-                                    <button 
-                                        className={`${styles.themeBtn} ${theme === 'dark' ? styles.activeTheme : ''}`}
-                                        onClick={() => setTheme('dark')}
-                                        title="Dark Mode"
-                                    >
-                                        <Moon size={20} />
-                                    </button>
-                                    <button 
-                                        className={`${styles.themeBtn} ${theme === 'system' ? styles.activeTheme : ''}`}
-                                        onClick={() => setTheme('system')}
-                                        title="System Auto"
-                                    >
-                                        <Monitor size={20} />
-                                    </button>
-                                </div>
-                            )}
-
-                            <p className={styles.description} style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
-                                Navigation Menu
-                            </p>
-
-                            <div className={styles.locationDropdownContainer}>
-                                <button
-                                    className={styles.locationDropdownToggle}
-                                    onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
-                                >
-                                    Customize Locations
-                                    <span className={`${styles.accordionIcon} ${isLocationDropdownOpen ? styles.open : ''}`}>▼</span>
-                                </button>
-
-                                {isLocationDropdownOpen && (
-                                    <div className={styles.locationDropdownMenu}>
-                                        {locationOrder.map((loc, index) => (
-                                            <div key={loc} className={styles.locationDropdownItem}>
-                                                <label className={styles.checkboxLabel}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={visibleLocations.includes(loc)}
-                                                        onChange={() => handleToggleLocation(loc)}
-                                                        className={styles.checkbox}
-                                                    />
-                                                    <span>{loc}</span>
-                                                </label>
-                                                <div className={styles.reorderButtons}>
-                                                    <button
-                                                        className={styles.reorderBtn}
-                                                        onClick={() => handleMoveLocation(index, 'up')}
-                                                        disabled={index === 0}
-                                                        aria-label="Move up"
-                                                    >
-                                                        ▲
-                                                    </button>
-                                                    <button
-                                                        className={styles.reorderBtn}
-                                                        onClick={() => handleMoveLocation(index, 'down')}
-                                                        disabled={index === locationOrder.length - 1}
-                                                        aria-label="Move down"
-                                                    >
-                                                        ▼
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
-                        </div>
-                    </div>
+                        )}
+                    </section>
 
-                    <div className={styles.accordionSection}>
-                        <button className={styles.accordionHeader} onClick={() => toggleSection('allergies')}>
-                            <div className={styles.headerWithBadge}>
-                                Dietary & Allergies
-                                <span className={styles.betaTag}>BETA</span>
-                            </div>
-                            <span className={`${styles.accordionIcon} ${openSection === 'allergies' ? styles.open : ''}`}>▼</span>
-                        </button>
-                        <div className={`${styles.accordionContent} ${openSection === 'allergies' ? styles.open : ''}`}>
-                            <p className={styles.description} style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-                                Choose your dietary preferences. Meals containing your selected ingredients will be clearly highlighted.
-                            </p>
+                    <section className={styles.section}>
+                        <h3 className={styles.sectionTitle}>Default restaurant</h3>
+                        <p className={styles.sectionHint}>Opens here when you launch the app.</p>
+                        <select
+                            className={styles.select}
+                            value={defaultFacility}
+                            onChange={handleSaveDefaultFacility}
+                            aria-label="Default restaurant"
+                        >
+                            <option value="">No default</option>
+                            {groupedFacilities.map(([location, group]) => (
+                                <optgroup key={location} label={location}>
+                                    {group.map(facility => (
+                                        <option key={facility.id} value={facility.id}>{facility.name}</option>
+                                    ))}
+                                </optgroup>
+                            ))}
+                        </select>
+                    </section>
 
-                            <div className={styles.allergensGrid}>
-                                {knownAllergens.length === 0 ? (
-                                    <p className={styles.description}>Loading allergens...</p>
-                                ) : (
-                                    knownAllergens.map((allergen) => (
-                                        <label key={allergen.code + allergen.desc} className={styles.checkboxLabel}>
+                    <section className={styles.section}>
+                        <h3 className={styles.sectionTitle}>Locations</h3>
+                        <p className={styles.sectionHint}>Choose which groups appear in the navigation, and their order.</p>
+                        <ul className={styles.locationList}>
+                            {locationOrder.map((location, index) => {
+                                const isVisible = visibleLocations.includes(location);
+                                const isLastVisible = isVisible && visibleLocations.length === 1;
+                                return (
+                                    <li key={location} className={styles.locationRow}>
+                                        <label className={styles.locationLabel}>
                                             <input
                                                 type="checkbox"
-                                                checked={selectedAllergens.includes(allergen.desc)}
-                                                onChange={() => toggleAllergen(allergen.desc)}
                                                 className={styles.checkbox}
+                                                checked={isVisible}
+                                                disabled={isLastVisible}
+                                                onChange={() => handleToggleLocation(location)}
                                             />
-                                            <span>{allergen.desc}</span>
+                                            <span>{location}</span>
                                         </label>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                                        <div className={styles.reorder}>
+                                            <button
+                                                type="button"
+                                                className={styles.reorderButton}
+                                                onClick={() => handleMoveLocation(index, -1)}
+                                                disabled={index === 0}
+                                                aria-label={`Move ${location} up`}
+                                            >
+                                                <ChevronUp size={16} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={styles.reorderButton}
+                                                onClick={() => handleMoveLocation(index, 1)}
+                                                disabled={index === locationOrder.length - 1}
+                                                aria-label={`Move ${location} down`}
+                                            >
+                                                <ChevronDown size={16} />
+                                            </button>
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </section>
 
-                    <div className={styles.accordionSection}>
-                        <button className={styles.accordionHeader} onClick={() => toggleSection('sync')}>
-                            Sync Data
-                            <span className={`${styles.accordionIcon} ${openSection === 'sync' ? styles.open : ''}`}>▼</span>
-                        </button>
-                        <div className={`${styles.accordionContent} ${openSection === 'sync' ? styles.open : ''}`}>
-                            <p className={styles.description} style={{ marginTop: '1rem' }}>
-                                Your Sync Code securely saves your favorites on this device.
-                            </p>
-                            <div className={styles.codeContainer}>
-                                <code className={styles.code}>{isLoading ? 'Loading...' : username}</code>
-                                <button className={styles.iconButton} onClick={copyToClipboard} disabled={!username} title="Copy Sync Code">
-                                    {success && !syncInput ? (
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#27ae60" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                    ) : (
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                        </svg>
-                                    )}
-                                </button>
+                    <section className={styles.section}>
+                        <h3 className={styles.sectionTitle}>
+                            Allergens
+                            <span className={styles.badge}>Beta</span>
+                        </h3>
+                        <p className={styles.sectionHint}>
+                            Meals containing anything you select are flagged with a warning.
+                        </p>
+                        {knownAllergens.length === 0 ? (
+                            <p className={styles.muted}>Loading allergens…</p>
+                        ) : (
+                            <div className={styles.chips}>
+                                {knownAllergens.map(allergen => {
+                                    const isSelected = selectedAllergens.includes(allergen.desc);
+                                    return (
+                                        <label
+                                            key={`${allergen.code}-${allergen.desc}`}
+                                            className={`${styles.chip} ${isSelected ? styles.chipSelected : ''}`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className={styles.visuallyHidden}
+                                                checked={isSelected}
+                                                onChange={() => toggleAllergen(allergen.desc)}
+                                            />
+                                            {allergen.desc}
+                                        </label>
+                                    );
+                                })}
                             </div>
+                        )}
+                    </section>
 
-                            <p className={styles.description}>Restore from another device:</p>
-                            <form className={styles.form} onSubmit={handleSync}>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. HappyPanda#1234"
-                                    className={styles.input}
-                                    value={syncInput}
-                                    onChange={(e) => setSyncInput(e.target.value)}
-                                    disabled={isLoading}
-                                />
-                                <button type="submit" className={styles.buttonSecondary} disabled={isLoading || !syncInput}>
-                                    {isLoading ? 'Syncing...' : 'Sync'}
-                                </button>
-                            </form>
-                            {error && <p className={styles.error}>{error}</p>}
-                            {success && syncInput && <p className={styles.successText}>Successfully synced!</p>}
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>Mensa Mate — app icon</title>
+  <!--
+    Source of truth for every generated icon and splash screen.
+    Run `npm run generate-icons` after changing this file.
+
+    Colours are literal so this file renders correctly on its own. The generator
+    recolours by substituting the three values below and asserts that each one is
+    present, so changing the palette here fails loudly instead of silently
+    emitting wrong assets:
+
+      #f3f2f2  ground  - the icon's own backdrop, and the cut-out that shapes
+                         the bowl's inner rim. On splash screens both become the
+                         app background instead.
+      #201e1d  bowl    - the solid silhouette. Inverted to a light tone for dark
+                         mode, where #201e1d on #121212 is invisible.
+      #ec3013  accent  - the chopsticks. Unchanged in both themes.
+
+    The full-canvas <rect> is stripped for splash output so the glyph sits
+    directly on the app background rather than in a pale square.
+  -->
+  <rect x="0" y="0" width="512" height="512" fill="#f3f2f2"></rect>
+  <g transform="translate(0 12)">
+    <ellipse cx="256" cy="222" rx="196" ry="50" fill="#201e1d"></ellipse>
+    <ellipse cx="256" cy="222" rx="162" ry="31" fill="#f3f2f2"></ellipse>
+    <g stroke="#ec3013" stroke-width="34" stroke-linecap="round">
+      <line x1="300" y1="58" x2="196" y2="252"></line>
+      <line x1="382" y1="104" x2="258" y2="252"></line>
+    </g>
+    <path d="M 60 222 C 60 372 148 424 256 424 C 364 424 452 372 452 222 Z" fill="#201e1d"></path>
+  </g>
+</svg>

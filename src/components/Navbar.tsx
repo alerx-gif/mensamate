@@ -2,10 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import SettingsModal from './SettingsModal';
-import LegiModal from './LegiModal';
-import SnakeGame from './SnakeGame';
 import styles from './Navbar.module.css';
+import dynamic from 'next/dynamic';
+
+// Modals are only mounted once opened, so keep them out of the initial bundle.
+// SnakeGame in particular is an easter egg behind five logo clicks.
+const SettingsModal = dynamic(() => import('./SettingsModal'), { ssr: false });
+const LegiModal = dynamic(() => import('./LegiModal'), { ssr: false });
+const SnakeGame = dynamic(() => import('./SnakeGame'), { ssr: false });
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);

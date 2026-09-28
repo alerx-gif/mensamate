@@ -1,415 +1,395 @@
-.overlay {
+/*
+ * Every colour here comes from a theme token. The previous version hardcoded 18
+ * different hex values (a blue action colour, greys, status colours), none of
+ * which adapted to dark mode.
+ */
+
+.scrim {
     position: fixed;
-    top: calc(60px + env(safe-area-inset-top, 0px));
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: transparent;
+    inset: 0;
     z-index: 1000;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: scrimIn 0.18s ease-out;
 }
 
-.dropdownContainer {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    background: var(--card-bg, white);
-    border-radius: 18px;
-    width: 340px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    z-index: 100;
-    overflow: hidden;
-    border: 1px solid var(--gray-light, #eee);
+@keyframes scrimIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.panel {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    max-width: 460px;
+    max-height: min(720px, calc(100vh - 48px));
+    background: var(--card-bg);
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+    animation: panelIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (max-width: 768px) {
-    .dropdownContainer {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        border-radius: 0;
+.panel:focus {
+    outline: none;
+}
+
+@keyframes panelIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* On phones it becomes a full-height sheet rather than a floating card. */
+@media (max-width: 600px) {
+    .scrim {
+        padding: 0;
+        align-items: stretch;
+    }
+
+    .panel {
+        max-width: none;
+        max-height: none;
         border: none;
-        box-shadow: none;
-        z-index: 200;
+        border-radius: 0;
+        animation: sheetIn 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes sheetIn {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 }
 
-.dropdownHeader {
+/* ---------- Header ---------- */
+
+.header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    padding: calc(1rem + env(safe-area-inset-top, 0px)) 1.25rem 1rem;
-    border-bottom: 1px solid var(--gray-light, #eee);
-}
-
-.dropdownHeader h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: var(--text-color, #333);
-}
-
-.closeButton {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--gray-dark, #666);
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.dropdownBody {
-    padding: 1rem 1.25rem;
-    overflow-y: auto;
-    flex-grow: 1;
-}
-
-.accordionSection {
-    margin-bottom: 1rem;
-    border: 1px solid var(--gray-light, #eee);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.accordionHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 1rem;
-    background: var(--card-bg, white);
-    border: none;
-    cursor: pointer;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--text-color, #333);
-    text-align: left;
-    transition: background-color 0.2s;
-}
-
-.accordionHeader:hover {
-    background: var(--background-color, #f9f9f9);
-}
-
-.accordionIcon {
-    transition: transform 0.3s ease;
-    color: var(--gray-dark, #666);
-}
-
-.accordionIcon.open {
-    transform: rotate(180deg);
-}
-
-.accordionContent {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    padding: 0 1rem;
-    transition: all 0.3s ease-in-out;
-}
-
-.accordionContent.open {
-    max-height: 1000px;
-    opacity: 1;
-    padding-bottom: 1rem;
-}
-
-.themeSelector {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.themeBtn {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8px;
-    background: var(--gray-bg, #edeff2);
-    border: 1px solid var(--gray-light, #eee);
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    color: var(--text-color, #333);
-    transition: all 0.2s ease;
-}
-
-.themeBtn:hover {
-    background: var(--gray-light, #dfe6e9);
-}
-
-.themeBtn.activeTheme {
-    background: var(--primary-color, #ff6b6b);
-    color: white;
-    border-color: var(--primary-color, #ff6b6b);
-}
-
-.description {
-    font-size: 0.9rem;
-    color: var(--gray-dark, #666);
-    margin-bottom: 1rem;
-    line-height: 1.4;
-}
-
-.codeContainer {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    max-width: 100%;
-}
-
-.code {
-    flex-grow: 1;
-    background: var(--background-color, #f5f5f5);
-    padding: 0.75rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-weight: bold;
-    color: var(--text-color, #2c3e50);
-    border: 1px solid var(--gray-light, #ddd);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.iconButton {
-    background: #3498db;
-    color: white;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.65rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
+    gap: 12px;
+    padding: 16px 20px;
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    border-bottom: 1px solid var(--gray-light);
     flex-shrink: 0;
 }
 
-.iconButton:hover:not(:disabled) {
-    background: #2980b9;
-}
-
-.iconButton:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
-.button {
-    background: #3498db;
-    color: white;
-    border: none;
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.button:hover:not(:disabled) {
-    background: #2980b9;
-}
-
-.button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
-.buttonSecondary {
-    background: var(--card-bg, white);
-    color: #3498db;
-    border: 1px solid #3498db;
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-}
-
-.buttonSecondary:hover:not(:disabled) {
-    background: #f0f8ff;
-}
-
-.buttonSecondary:disabled {
-    color: #ccc;
-    border-color: #ccc;
-    cursor: not-allowed;
-}
-
-.form {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.selectInput,
-.input {
-    flex-grow: 1;
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    border: 1px solid var(--gray-light, #ddd);
-    font-size: 1rem;
-    background: var(--card-bg, white);
-}
-
-.selectInput {
-    width: 100%;
-    cursor: pointer;
-}
-
-.input:focus,
-.selectInput:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
-
-.error {
-    color: #e74c3c;
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-}
-
-.successText {
-    color: #27ae60;
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-    font-weight: bold;
-}
-
-.locationDropdownContainer {
-    position: relative;
-    width: 100%;
-}
-
-.locationDropdownToggle {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background: var(--background-color, #f5f5f5);
-    border: 1px solid var(--gray-light, #ddd);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    text-align: left;
-    color: var(--text-color, #333);
-}
-
-.locationDropdownMenu {
-    margin-top: 0.5rem;
-    background: var(--card-bg, white);
-    border: 1px solid var(--gray-light, #ddd);
-    border-radius: 6px;
-    padding: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.locationDropdownItem {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--background-color, #f9f9f9);
-    padding: 0.5rem;
-    border-radius: 6px;
-    border: 1px solid transparent;
-}
-
-.locationDropdownItem:hover {
-    border-color: var(--gray-light, #ddd);
-}
-
-.checkboxLabel {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text-color, #333);
-    cursor: pointer;
+.title {
     margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-color);
 }
 
-.checkbox {
-    cursor: pointer;
-    width: 16px;
-    height: 16px;
-}
-
-.reorderButtons {
-    display: flex;
-    gap: 0.25rem;
-}
-
-.reorderBtn {
-    background: transparent;
-    border: 1px solid var(--gray-light, #ddd);
-    color: var(--gray-dark, #666);
-    border-radius: 4px;
-    width: 28px;
-    height: 28px;
+.closeButton {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--gray-light);
+    border-radius: 50%;
+    background: var(--card-bg);
+    color: var(--gray-dark);
     cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.2s;
+    flex-shrink: 0;
+    transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-.reorderBtn:hover:not(:disabled) {
-    background: #eaeaea;
-    color: var(--text-color, #333);
+@media (hover: hover) {
+    .closeButton:hover {
+        background: var(--gray-bg);
+        color: var(--text-color);
+    }
 }
 
-.reorderBtn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}.allergensGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 0.75rem;
-  margin-top: 1rem;
+/* ---------- Body ---------- */
+
+/*
+ * One scrolling list of labelled groups. The old accordion hid all but one
+ * section, so changing two settings meant collapsing and expanding panels.
+ */
+.body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 20px 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
 }
 
-.headerWithBadge {
+.section {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.section:last-child {
+    border-bottom: none;
+    padding-bottom: 4px;
+}
+
+.sectionTitle {
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-.betaTag {
-    background-color: #3b82f6;
-    color: white;
-    font-size: 0.65rem;
+    margin: 0;
+    font-size: 0.8rem;
     font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-dark);
 }
 
-.themeSelector {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
+.sectionHint {
+    margin: 6px 0 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--gray-dark);
 }
 
-.radioLabel {
+.sectionTitle + .segmented,
+.sectionTitle + .select,
+.sectionTitle + .locationList,
+.sectionHint + * {
+    margin-top: 12px;
+}
+
+.badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 50px;
+    background: var(--gray-bg);
+    border: 1px solid var(--gray-light);
+    color: var(--gray-dark);
+}
+
+.muted {
+    margin: 12px 0 0;
+    font-size: 0.9rem;
+    color: var(--gray-dark);
+}
+
+/* ---------- Appearance ---------- */
+
+/*
+ * Horizontal, with labels. The old rule set was declared twice — the second
+ * definition forced flex-direction: column, so three unlabelled icon buttons
+ * stacked into full-width bars.
+ */
+.segmented {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 4px;
+    background: var(--gray-bg);
+    border-radius: 12px;
+}
+
+.segment {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    color: var(--text-color, #333);
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 6px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--gray-dark);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+@media (hover: hover) {
+    .segment:hover:not(.segmentActive) {
+        color: var(--text-color);
+    }
+}
+
+.segmentActive {
+    background: var(--card-bg);
+    color: var(--text-color);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Inputs ---------- */
+
+.select {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--gray-light);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.select {
+    cursor: pointer;
+}
+
+.select:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 1px;
+    border-color: var(--primary-color);
+}
+
+/* ---------- Locations ---------- */
+
+.locationList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.locationRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 10px 8px 12px;
+    border: 1px solid var(--gray-light);
+    border-radius: 10px;
+    background: var(--card-bg);
+}
+
+.locationLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.locationLabel:has(.checkbox:disabled) {
+    cursor: default;
+}
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.checkbox:disabled {
+    cursor: default;
+}
+
+.reorder {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.reorderButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--gray-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--gray-dark);
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+@media (hover: hover) {
+    .reorderButton:hover:not(:disabled) {
+        background: var(--gray-bg);
+        color: var(--text-color);
+    }
+}
+
+.reorderButton:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* ---------- Allergen chips ---------- */
+
+/*
+ * Chips instead of a checkbox grid: the selected set is readable at a glance
+ * and the list wraps to whatever width is available.
+ */
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.chip {
+    padding: 7px 13px;
+    border: 1px solid var(--gray-light);
+    border-radius: 50px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 0.875rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+@media (hover: hover) {
+    .chip:hover {
+        background: var(--gray-bg);
+    }
+}
+
+/* Same selected treatment as the restaurant pills and weekday tabs. */
+.chipSelected {
+    background: var(--text-color);
+    border-color: var(--text-color);
+    color: var(--card-bg);
+}
+
+.chip:has(:focus-visible) {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.visuallyHidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scrim,
+    .panel {
+        animation: none;
+    }
+
+    .segment,
+    .chip,
+    .closeButton,
+    .reorderButton {
+        transition: none;
+    }
 }

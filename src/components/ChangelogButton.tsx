@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import ChangelogModal from './ChangelogModal';
 import styles from './Footer.module.css';
+import dynamic from 'next/dynamic';
+
+const ChangelogModal = dynamic(() => import('./ChangelogModal'), { ssr: false });
 
 interface ChangelogButtonProps {
     className?: string;

@@ -70,7 +70,7 @@ export default function FacilityDetailModal({ facility, openingHours, onClose }:
                                             <span className={styles.mealTimeHours}>{oh.timeFrom} - {oh.timeTo}</span>
                                         </div>
                                         {oh.mealTimes?.map((mt, mtIdx) => (
-                                            <div key={mtIdx} className={styles.openingHourRow} style={{ marginTop: '4px', background: '#f0f4f8' }}>
+                                            <div key={mtIdx} className={`${styles.openingHourRow} ${styles.mealTimeRow}`}>
                                                 <span className={styles.mealTimeName}>{mt.name}</span>
                                                 <span className={styles.mealTimeHours}>{mt.timeFrom} - {mt.timeTo}</span>
                                             </div>

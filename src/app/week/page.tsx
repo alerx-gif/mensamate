@@ -15,10 +15,14 @@ export default async function WeeklyPage({
     const facilityIdStr = typeof resolvedParams.facility === 'string' ? resolvedParams.facility : '';
     const facilityId = facilityIdStr ? parseInt(facilityIdStr, 10) : null;
 
+    // Swiss time, matching the daily view — toISOString() would use UTC and roll
+    // the date over an hour or two early for a Zurich user.
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Zurich' });
+
     // Default to today if no date provided, though we usually just want the current week
     const date = typeof resolvedParams.date === 'string'
         ? resolvedParams.date
-        : new Date().toISOString().split('T')[0];
+        : today;
 
     const facilities = await getAllFacilities();
     const selectedFacility = facilities.find(f => f.id === facilityId);
@@ -50,7 +54,7 @@ export default async function WeeklyPage({
                     <p className={styles.emptyText}>No menus this week</p>
                 </div>
             ) : (
-                <WeeklyMenuGrid plan={weeklyPlan} />
+                <WeeklyMenuGrid plan={weeklyPlan} today={today} />
             )}
         </div>
     );

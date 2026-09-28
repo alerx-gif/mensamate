@@ -1,28 +1,37 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import styles from './MenuCard.module.css';
 import { Meal } from '@/types/eth';
 import { getImageUrl } from '@/lib/eth-client';
-import MenuModal from './MenuModal';
 import { isUzhFacility } from '@/lib/uzh-client';
 import { useAllergens } from '@/lib/useAllergens';
-import { AlertTriangle, BicepsFlexed, Scale } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const MenuModal = dynamic(() => import('./MenuModal'), { ssr: false });
 
 interface MenuCardProps {
     meal: Meal;
     viewMode?: 'card' | 'list';
     index?: number;
     facilityId?: number;
-    isHighlighted?: boolean;
-    activeFilter?: 'none' | 'protein' | 'balanced';
 }
 
-export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityId, isHighlighted = false, activeFilter = 'none' }: MenuCardProps) {
+export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityId }: MenuCardProps) {
     // Support both ETH (imageId) and UZH (imageUrl) images
     const imageUrl = meal.imageUrl || getImageUrl(meal.imageId);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    // The exact variant the browser picked from the card's srcset, handed to the
+    // modal so it shows the already-downloaded file instead of fetching again.
+    const imageRef = useRef<HTMLImageElement>(null);
+    const [loadedImageSrc, setLoadedImageSrc] = useState<string | undefined>();
+
+    const openModal = () => {
+        setLoadedImageSrc(imageRef.current?.currentSrc || undefined);
+        setIsModalOpen(true);
+    };
 
     // Allergens logic
     const { hasSelectedAllergen, getTriggeringAllergens } = useAllergens();
@@ -35,16 +44,19 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
 
     const dietaryLabel = isVegan ? 'VEGAN' : isVegetarian ? 'VEGI' : null;
 
+    // 0 means "unknown", not free: the UZH weekly view carries no prices.
+    const hasPrice = meal.prices.student > 0;
+
     return (
         <>
             <article
-                className={`${styles.card} ${viewMode === 'list' ? styles.cardList : ''} ${isHighlighted ? styles.highlighted : ''}`}
-                style={{ animationDelay: `${index * 0.08}s` }}
-                onClick={() => setIsModalOpen(true)}
+                className={`${styles.card} ${viewMode === 'list' ? styles.cardList : ''}`}
+                onClick={openModal}
             >
                 {imageUrl && (
                     <div className={styles.imageWrapper}>
                         <Image 
+                            ref={imageRef}
                             src={imageUrl} 
                             alt={meal.name} 
                             className={styles.image} 
@@ -53,10 +65,6 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
                             sizes="(max-width: 768px) 100vw, 400px" 
                             priority={index < 2}
                         />
-                        <div className={styles.leftTagsContainer}>
-                            {isHighlighted && activeFilter === 'protein' && <span className={styles.topPickTag} title="Highest Protein"><BicepsFlexed size={16} /></span>}
-                            {isHighlighted && activeFilter === 'balanced' && <span className={styles.topPickTag} title="Most Balanced"><Scale size={16} /></span>}
-                        </div>
                         <div className={styles.tagsContainer}>
                             {/* Hide category label in list view */}
                             {viewMode === 'card' && meal.label && (
@@ -69,31 +77,38 @@ export default function MenuCard({ meal, viewMode = 'card', index = 0, facilityI
                 <div className={styles.content}>
                     <div className={styles.header}>
                         <h3 className={styles.title}>
-                            {!imageUrl && isHighlighted && activeFilter === 'protein' && <span className={styles.topPickTagInlineLeft} title="Highest Protein"><BicepsFlexed size={14} /></span>}
-                            {!imageUrl && isHighlighted && activeFilter === 'balanced' && <span className={styles.topPickTagInlineLeft} title="Most Balanced"><Scale size={14} /></span>}
                             {meal.name}
                         </h3>
                         {!imageUrl && dietaryLabel && <span className={styles.dietaryTagInline}>{dietaryLabel}</span>}
                     </div>
                     <p className={styles.description}>{meal.description}</p>
-                    <div className={styles.priceDisplay}>
-                        <div className={styles.priceDisplayLeft}>
-                            <span className={styles.price}>CHF {meal.prices.student.toFixed(2)}</span>
-                            {isAllergenWarning && (
-                                <div 
-                                    className={styles.allergenWarning} 
-                                    title={`Contains selected allergens: ${triggeringAllergens.join(', ')}`}
-                                >
-                                    <AlertTriangle size={18} />
-                                </div>
-                            )}
+                    {(hasPrice || isAllergenWarning) && (
+                        <div className={styles.priceDisplay}>
+                            <div className={styles.priceDisplayLeft}>
+                                {hasPrice && (
+                                    <span className={styles.price}>CHF {meal.prices.student.toFixed(2)}</span>
+                                )}
+                                {isAllergenWarning && (
+                                    <div
+                                        className={styles.allergenWarning}
+                                        title={`Contains selected allergens: ${triggeringAllergens.join(', ')}`}
+                                    >
+                                        <AlertTriangle size={18} />
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </article>
 
             {isModalOpen && (
-                <MenuModal meal={meal} onClose={() => setIsModalOpen(false)} facilityId={facilityId} />
+                <MenuModal
+                    meal={meal}
+                    imageSrc={loadedImageSrc}
+                    onClose={() => setIsModalOpen(false)}
+                    facilityId={facilityId}
+                />
             )}
         </>
     );

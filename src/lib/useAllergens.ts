@@ -68,18 +68,19 @@ export function useAllergens() {
     }, [loadFromStorage]);
 
     const toggleAllergen = useCallback((allergenDesc: string) => {
-        setSelectedAllergens(current => {
-            const isSelected = current.includes(allergenDesc);
-            const updated = isSelected 
-                ? current.filter(desc => desc !== allergenDesc)
-                : [...current, allergenDesc];
-            
-            localStorage.setItem('selectedAllergens', JSON.stringify(updated));
-            // Dispatch event so other components (like MenuCard) update instantly
-            window.dispatchEvent(new Event('allergensUpdated'));
-            return updated;
-        });
-    }, []);
+        // The side effects stay outside the state updater: updaters must be
+        // pure (StrictMode runs them twice), and dispatching from inside one
+        // made every MenuCard's listener set state mid-render of SettingsModal.
+        const isSelected = selectedAllergens.includes(allergenDesc);
+        const updated = isSelected
+            ? selectedAllergens.filter(desc => desc !== allergenDesc)
+            : [...selectedAllergens, allergenDesc];
+
+        setSelectedAllergens(updated);
+        localStorage.setItem('selectedAllergens', JSON.stringify(updated));
+        // Dispatch event so other components (like MenuCard) update instantly
+        window.dispatchEvent(new Event('allergensUpdated'));
+    }, [selectedAllergens]);
 
     // Helper to check if a meal's allergens overlap with selected allergens
     const hasSelectedAllergen = useCallback((mealAllergens?: Allergen[]) => {

@@ -1,29 +1,32 @@
 .main {
-    padding: 2rem;
+    padding: 1.5rem 0 2rem;
     max-width: 1400px;
-    /* Wider for horizontal layout */
     margin: 0 auto;
 }
 
+@media (min-width: 768px) {
+    .main {
+        padding: 2rem 0;
+    }
+}
+
 .header {
-    margin-bottom: 0;
+    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 0.75rem;
 }
 
 .title {
-    font-size: clamp(1.2rem, 8vw, 2.4rem);
+    font-size: clamp(1.5rem, 6vw, 2.4rem);
     font-weight: 800;
-    color: #111;
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: var(--text-color);
+    line-height: 1.15;
+    overflow-wrap: break-word;
 }
 
 .backLink {
-    color: #555;
+    color: var(--gray-dark);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -55,4 +58,138 @@
     color: var(--text-color);
     margin: 0;
     letter-spacing: -0.5px;
+}
+/* ---------- Loading skeleton ---------- */
+
+@keyframes skeletonPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
+
+.skeletonBackLink,
+.skeletonTitle,
+.skeletonTab,
+.skeletonDayTitle,
+.skeletonDayMeta,
+.skeletonImage,
+.skeletonLineWide,
+.skeletonLineNarrow,
+.skeletonPrice {
+    background: var(--gray-bg);
+    border-radius: 6px;
+    animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeletonBackLink {
+    width: 110px;
+    height: 20px;
+}
+
+.skeletonTitle {
+    width: min(60%, 380px);
+    height: 2.4rem;
+    border-radius: 8px;
+}
+
+.skeletonDayBar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.skeletonTab {
+    flex: 1 1 0;
+    min-width: 60px;
+    height: 62px;
+    border-radius: 14px;
+}
+
+.skeletonPanelHeader {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 16px;
+    padding: 14px 0 12px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.skeletonDayTitle {
+    width: 150px;
+    height: 1.5rem;
+    border-radius: 8px;
+}
+
+.skeletonDayMeta {
+    width: 130px;
+    height: 0.95rem;
+}
+
+.skeletonGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 400px);
+    justify-content: center;
+    gap: 16px;
+}
+
+@media (min-width: 640px) {
+    .skeletonGrid {
+        grid-template-columns: repeat(2, minmax(0, 400px));
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .skeletonGrid {
+        grid-template-columns: repeat(3, minmax(0, 400px));
+    }
+}
+
+.skeletonCard {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.skeletonImage {
+    height: 200px;
+    border-radius: 0;
+}
+
+.skeletonCardBody {
+    padding: 16px;
+}
+
+.skeletonLineWide {
+    width: 80%;
+    height: 1.1rem;
+}
+
+.skeletonLineNarrow {
+    width: 55%;
+    height: 0.9rem;
+    margin-top: 10px;
+}
+
+.skeletonPrice {
+    width: 90px;
+    height: 1.4rem;
+    margin-top: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeletonBackLink,
+    .skeletonTitle,
+    .skeletonTab,
+    .skeletonDayTitle,
+    .skeletonDayMeta,
+    .skeletonImage,
+    .skeletonLineWide,
+    .skeletonLineNarrow,
+    .skeletonPrice {
+        animation: none;
+    }
 }

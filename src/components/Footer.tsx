@@ -1,7 +1,17 @@
 import Link from 'next/link';
 import styles from './Footer.module.css';
-import FeedbackCaptcha from './FeedbackCaptcha';
 import ChangelogButton from './ChangelogButton';
+
+/*
+ * Feedback goes to a hosted form rather than a mailto: link. The provider deals
+ * with spam, rate limiting and storage, and no address is exposed in the bundle
+ * for harvesters to scrape — the previous arithmetic captcha guarded a mailto:
+ * whose address sat in plaintext in the same JavaScript file.
+ *
+ * Set NEXT_PUBLIC_FEEDBACK_URL to the form's public link. Unset, the link is
+ * simply not rendered rather than pointing nowhere.
+ */
+const FEEDBACK_URL = process.env.NEXT_PUBLIC_FEEDBACK_URL;
 
 export default function Footer() {
     return (
@@ -21,7 +31,20 @@ export default function Footer() {
                     <Link href="/privacy" className={styles.link}>
                         Privacy
                     </Link>
-                    <FeedbackCaptcha className={styles.link} />
+                    {FEEDBACK_URL && (
+                        <a
+                            href={FEEDBACK_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.link}
+                        >
+                            <svg height="20" width="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                            Feedback
+                        </a>
+                    )}
                     <ChangelogButton className={styles.link} />
                     <a
                         href="https://github.com/alerx-gif/mensamate"

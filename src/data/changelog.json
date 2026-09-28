@@ -1,5 +1,42 @@
 [
   {
+    "version": "1.7.0",
+    "date": "2026-09-28",
+    "features": [
+      {
+        "text": "Redesigned the weekly menu around a day selector, with lunch and dinner shown separately and the current day pinned while you scroll",
+        "highlight": true
+      },
+      {
+        "text": "Rebuilt Settings: everything is visible at once, with a Light/Dark/System switch and allergens as tappable chips",
+        "highlight": true
+      },
+      {
+        "text": "Added Impressum and Privacy Policy pages in German and English",
+        "highlight": false
+      }
+    ],
+    "improvements": [
+      "Faster app: smaller images, quicker startup, and menu text that appears instantly",
+      "Opening a meal now reuses the photo that is already loaded instead of downloading it again",
+      "The installed iOS app now shows a proper launch screen instead of a black screen",
+      "Settings closes with Escape and works fully with the keyboard",
+      "Feedback now goes through a simple hosted form instead of a maths captcha",
+      "Your settings now stay on this device only. Sync Codes and cross-device syncing have been removed",
+      "Removed the Protein and Balanced highlight filters",
+      "Rewrote the privacy policy to follow Swiss data protection law and explain exactly what the app does (and doesn't) store"
+    ],
+    "fixes": [
+      "Fixed Obere Mensa UZH showing no menus",
+      "Fixed UZH restaurants sometimes appearing empty on Monday mornings",
+      "Fixed \"CHF 0.00\" prices in the UZH weekly menu",
+      "Fixed the weekly menu showing the wrong day late in the evening",
+      "Fixed dark mode on the weekly menu, in Settings and in the opening hours",
+      "Fixed the top bar blur on iOS 26, Chrome and Android",
+      "Fixed the iOS home screen icon showing a letter instead of the Mensa Mate icon"
+    ]
+  },
+  {
     "version": "1.6.0",
     "date": "2026-06-20",
     "features": [

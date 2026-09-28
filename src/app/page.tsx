@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { cookies } from 'next/headers';
 import { getAllFacilities } from '@/lib/unified-client';
+import { FacilityNavItem } from '@/types/eth';
 import RestaurantNavigation from '@/components/RestaurantNavigation';
 import FacilityContent from '@/components/FacilityContent';
 import ContentSkeleton from '@/components/ContentSkeleton';
@@ -37,6 +38,16 @@ export default async function Home({
   const selectedFacilityId = parseInt(selectedFacilityIdStr, 10);
   const selectedFacility = facilities.find(f => f.id === selectedFacilityId);
 
+  // Only the fields RestaurantNavigation reads cross the server/client boundary.
+  // Passing full Facility objects would serialize ~26KB of unused extended details
+  // (payment options, features, address, caterer) into the RSC payload per load.
+  const navFacilities: FacilityNavItem[] = facilities.map(f => ({
+    id: f.id,
+    name: f.name,
+    shortName: f.shortName,
+    location: f.location,
+  }));
+
   // Get Today's Date in YYYY-MM-DD using Swiss timezone
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Zurich' });
   const dateString = new Date().toLocaleDateString('en-US', { timeZone: 'Europe/Zurich', weekday: 'short', month: 'short', day: 'numeric' });
@@ -59,7 +70,7 @@ export default async function Home({
             <AsyncFacilityHeader facility={selectedFacility} today={today} dateString={dateString} />
           </Suspense>
 
-          <RestaurantNavigation facilities={facilities} selectedFacilityId={selectedFacilityId} />
+          <RestaurantNavigation facilities={navFacilities} selectedFacilityId={selectedFacilityId} />
 
           <Suspense key={`content-${selectedFacility.id}`} fallback={<ContentSkeleton />}>
             <NavigationLoadingWrapper currentFacilityId={selectedFacility.id}>

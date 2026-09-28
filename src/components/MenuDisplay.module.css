@@ -4,37 +4,14 @@
 
 .controls {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     margin-bottom: 32px;
 }
 
-.controlsLeft, .controlsRight {
+.controlsRight {
     display: flex;
     gap: 8px;
-}
-
-.filterButton {
-    background: transparent;
-    border: 1px solid var(--gray-light);
-    padding: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    color: var(--text-color);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.filterButton:hover {
-    background: var(--gray-bg);
-}
-
-.filterButton.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
 }
 
 .toggleButton {

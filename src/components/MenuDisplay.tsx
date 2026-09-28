@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Meal } from '@/types/eth';
 import MenuCard from './MenuCard';
 import styles from './MenuDisplay.module.css';
-import { BicepsFlexed, Scale, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { splitByMealTime } from '@/lib/mealTime';
 
 interface MenuDisplayProps {
     meals: Meal[];
@@ -16,7 +17,6 @@ export default function MenuDisplay({ meals, facilityId, date }: MenuDisplayProp
     const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
     const [liveMeals, setLiveMeals] = useState<Meal[]>(meals);
     const [hasAttemptedRefetch, setHasAttemptedRefetch] = useState(false);
-    const [activeFilter, setActiveFilter] = useState<'none' | 'protein' | 'balanced'>('none');
     const [showSecondary, setShowSecondary] = useState(false);
     const [isEvening, setIsEvening] = useState(() => new Date().getHours() >= 14);
 
@@ -26,52 +26,6 @@ export default function MenuDisplay({ meals, facilityId, date }: MenuDisplayProp
         const interval = setInterval(checkTime, 60000);
         return () => clearInterval(interval);
     }, []);
-
-    // Calculate highlighted meal
-    const highlightedMealId = React.useMemo(() => {
-        if (activeFilter === 'none' || liveMeals.length === 0) return null;
-
-        let bestMeal = null;
-        let bestScore = -Infinity;
-
-        liveMeals.forEach(meal => {
-            if (!meal.nutrition) return;
-
-            if (activeFilter === 'protein') {
-                const protein = meal.nutrition.protein || 0;
-                if (protein > bestScore) {
-                    bestScore = protein;
-                    bestMeal = meal.id;
-                }
-            } else if (activeFilter === 'balanced') {
-                // Goal: ~50% carbs, 30% protein, 20% fat
-                const carbs = meal.nutrition.carbohydrates || 0;
-                const protein = meal.nutrition.protein || 0;
-                const fat = meal.nutrition.fat || 0;
-                
-                const totalCals = (carbs * 4) + (protein * 4) + (fat * 9);
-                if (totalCals === 0) return;
-
-                const carbPct = (carbs * 4) / totalCals;
-                const proteinPct = (protein * 4) / totalCals;
-                const fatPct = (fat * 9) / totalCals;
-
-                const carbDiff = Math.abs(carbPct - 0.50);
-                const proteinDiff = Math.abs(proteinPct - 0.30);
-                const fatDiff = Math.abs(fatPct - 0.20);
-                
-                const distance = carbDiff + proteinDiff + fatDiff;
-                const score = -distance; // We want to minimize distance
-                
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestMeal = meal.id;
-                }
-            }
-        });
-
-        return bestMeal;
-    }, [activeFilter, liveMeals]);
 
     // Sync state when props change
     useEffect(() => {
@@ -126,12 +80,7 @@ export default function MenuDisplay({ meals, facilityId, date }: MenuDisplayProp
 
     // Group meals
     const { primaryMenus, secondaryMenus, secondaryLabel } = React.useMemo(() => {
-        const dinnerMenus = liveMeals.filter(m => 
-            m.label?.toLowerCase().includes('abend') || 
-            m.name.toLowerCase().includes('abend') || 
-            m.line?.toLowerCase().includes('abend')
-        );
-        const lunchMenus = liveMeals.filter(m => !dinnerMenus.includes(m));
+        const { lunch: lunchMenus, dinner: dinnerMenus } = splitByMealTime(liveMeals);
 
         if (isEvening) {
             return {
@@ -153,25 +102,6 @@ export default function MenuDisplay({ meals, facilityId, date }: MenuDisplayProp
     return (
         <div className={styles.container}>
             <div className={styles.controls}>
-                <div className={styles.controlsLeft}>
-                    <button
-                        className={`${styles.filterButton} ${activeFilter === 'protein' ? styles.active : ''}`}
-                        onClick={() => setActiveFilter(prev => prev === 'protein' ? 'none' : 'protein')}
-                        title="Highest Protein"
-                        aria-label="Filter Highest Protein"
-                    >
-                        <BicepsFlexed size={20} />
-                    </button>
-                    <button
-                        className={`${styles.filterButton} ${activeFilter === 'balanced' ? styles.active : ''}`}
-                        onClick={() => setActiveFilter(prev => prev === 'balanced' ? 'none' : 'balanced')}
-                        title="Most Balanced"
-                        aria-label="Filter Most Balanced"
-                    >
-                        <Scale size={20} />
-                    </button>
-                </div>
-                
                 <div className={styles.controlsRight}>
                 <button
                     className={`${styles.toggleButton} ${viewMode === 'card' ? styles.active : ''}`}
@@ -210,8 +140,6 @@ export default function MenuDisplay({ meals, facilityId, date }: MenuDisplayProp
                         viewMode={viewMode}
                         index={index}
                         facilityId={facilityId}
-                        isHighlighted={meal.id === highlightedMealId}
-                        activeFilter={activeFilter}
                     />
                 ))}
             </div>
@@ -239,8 +167,6 @@ export default function MenuDisplay({ meals, facilityId, date }: MenuDisplayProp
                                     viewMode={viewMode}
                                     index={index}
                                     facilityId={facilityId}
-                                    isHighlighted={meal.id === highlightedMealId}
-                                    activeFilter={activeFilter}
                                 />
                             ))}
                         </div>

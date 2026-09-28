@@ -6,11 +6,51 @@
     align-items: center;
     justify-content: space-between;
     padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 12px 20px;
-    background: var(--navbar-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    min-height: calc(var(--navbar-height) + env(safe-area-inset-top, 0px));
     border-bottom: 1px solid transparent;
     transition: box-shadow 0.3s ease, border-bottom-color 0.3s ease;
+}
+
+/*
+ * The tint and blur live on their own layer behind the content rather than on
+ * .navbar itself. With backdrop-filter set on the element that also holds the
+ * title and buttons, WebKit can fold those children into the backdrop it is
+ * filtering, which smears the text — the blur is meant to affect only what is
+ * behind the bar.
+ */
+.navbar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--navbar-bg);
+    /* Prefixed first: with the standard property written first the minifier
+       collapses the pair down to the -webkit- one alone, which left Chrome and
+       Android with no blur at all. */
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    /* Keeps the filtered layer isolated from the content painted above it. */
+    isolation: isolate;
+    pointer-events: none;
+}
+
+/* Paint above the blur layer, never through it. */
+.brand,
+.actions {
+    position: relative;
+    z-index: 1;
+}
+
+/*
+ * Standalone only: push the row down by the same 6px that --navbar-height gains,
+ * so the content actually clears the status bar rather than just re-centring in
+ * a taller bar. 18 + inset + 40 (buttons) + 12 + 1 (border) = 71px + inset,
+ * which is exactly the min-height, so the two stay consistent.
+ */
+@media (display-mode: standalone) {
+    .navbar {
+        padding-top: calc(18px + env(safe-area-inset-top, 0px));
+    }
 }
 
 .scrolled {
@@ -31,6 +71,7 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 1;
 }
 
 /* Removed gradient classes as they are no longer needed for the text color */

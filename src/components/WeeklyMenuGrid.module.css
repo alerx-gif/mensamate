@@ -1,101 +1,227 @@
 .container {
-    padding: 0.25rem 0 1rem 0;
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Base styles / Desktop default */
-.desktopView {
+/* ---------- Day selector ---------- */
+
+/*
+ * Deliberately not sticky: switching days is a deliberate act, so the selector
+ * scrolls away and the day heading below takes over as the persistent label.
+ */
+.dayBar {
+    border-bottom: 1px solid var(--gray-light);
+    padding: 12px 0;
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Room for focus rings, offset so tabs still align with the grid edge. */
+    padding: 3px;
+    margin: -3px;
+}
+
+.tabs::-webkit-scrollbar {
     display: none;
 }
 
-.mobileView {
+.tab {
+    flex: 1 1 0;
+    min-width: 56px;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-}
-
-.navigationControls {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: transparent;
-    padding: 0.8rem 0;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
-    margin-bottom: 0.5rem;
-}
-
-.navButton {
-    background: transparent;
-    border: none;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
+    gap: 2px;
+    padding: 10px 6px 8px;
+    border: 1px solid var(--gray-light);
+    border-radius: 14px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-family: inherit;
     cursor: pointer;
-    color: var(--text-color);
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
-.navButton svg {
-    width: 32px;
-    height: 32px;
+@media (hover: hover) {
+    .tab:hover:not(.tabSelected) {
+        background: var(--gray-bg);
+        transform: translateY(-1px);
+    }
 }
 
-.navButton:disabled {
-    opacity: 0.2;
-    cursor: not-allowed;
+.tab:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }
 
-.dayIndicator {
-    font-weight: 800;
-    font-size: 1.8rem;
-    color: var(--text-color);
-    text-transform: capitalize;
+/* Matches the selected-pill treatment used elsewhere in the app, which keeps
+   strong contrast in both themes. */
+.tabSelected {
+    background: var(--text-color);
+    border-color: var(--text-color);
+    color: var(--card-bg);
+    box-shadow: var(--shadow-sm);
 }
 
-.mobileDayContent {
-    width: 100%;
+.tabWeekday {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.75;
 }
 
-.dayColumn {
-    min-width: 300px;
-    max-width: 350px;
-    flex: 0 0 auto;
-    scroll-snap-align: start;
-    border-right: 1px solid var(--gray-light, #eee);
-    padding-right: 1.5rem;
-}
-
-.dayColumn:last-child {
-    border-right: none;
-}
-
-.dayTitle {
-    font-size: 1.5rem;
+.tabDayOfMonth {
+    font-size: 1.3rem;
     font-weight: 700;
-    margin-bottom: 1rem;
-    color: var(--text-color);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
 }
 
-.mealsList {
+/* Always laid out, so today's dot never shifts the tabs. */
+.tabMarker {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: transparent;
+    margin-top: 2px;
+}
+
+.tabMarkerToday {
+    background: var(--primary-color);
+}
+
+.tabSelected .tabMarkerToday {
+    background: var(--card-bg);
+}
+
+/* ---------- Selected day ---------- */
+
+.panel {
+    padding-top: 0;
+}
+
+/*
+ * Pinned under the navbar. Cards scroll beneath it, so it needs an opaque
+ * background rather than the page's own.
+ */
+.panelHeader {
+    position: sticky;
+    top: calc(var(--navbar-height) + env(safe-area-inset-top, 0px));
+    z-index: 20;
+    background: var(--background-color);
+    border-bottom: 1px solid var(--gray-light);
+    padding: 14px 0 12px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 16px;
+}
+
+.panelTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.todayBadge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 50px;
+    background: var(--gray-bg);
+    border: 1px solid var(--gray-light);
+    color: var(--gray-dark);
+}
+
+.panelMeta {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--gray-dark);
+}
+
+/*
+ * A plain responsive grid: one column on phones, filling out to three on wide
+ * screens. Replaces the old horizontally scrolling day columns, which forced
+ * scrolling on both axes at once.
+ */
+.grid {
+    display: grid;
+    /* Tracks are capped at the card's own max-width so a wide column never
+       leaves a card stranded in the middle of empty space. */
+    grid-template-columns: minmax(0, 400px);
+    justify-content: center;
+    gap: 16px;
+}
+
+@media (min-width: 640px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 400px));
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(3, minmax(0, 400px));
+    }
+}
+
+.mealGroup + .mealGroup {
+    margin-top: 32px;
+}
+
+.mealGroupTitle {
+    margin: 0 0 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-dark);
+}
+
+.emptyDay {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    align-items: center;
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--gray-dark);
 }
 
-/* Media Query for Desktop */
-@media (min-width: 768px) {
-    .mobileView {
-        display: none;
+.emptyIcon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.emptyText {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+}
+
+/* Respect users who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+    .tab {
+        transition: none;
     }
 
-    .desktopView {
-        display: flex;
-        overflow-x: auto;
-        gap: 1.5rem;
-        padding: 1rem 0;
-        scroll-snap-type: x mandatory;
+    .tab:hover:not(.tabSelected) {
+        transform: none;
     }
 }

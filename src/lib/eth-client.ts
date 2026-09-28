@@ -1,4 +1,5 @@
-import { Facility, WeeklyRota, Meal, FacilityResponseRaw, WeeklyRotaResponseRaw, Price, WeeklyPlan, DayMenu } from '@/types/eth';
+import { cache } from 'react';
+import { Facility, WeeklyRota, Meal, FacilityResponseRaw, WeeklyRotaResponseRaw, WeeklyRotaRaw, Price, WeeklyPlan, DayMenu } from '@/types/eth';
 
 const API_BASE = 'https://idapps.ethz.ch/cookpit-pub-services/v1';
 const CLIENT_ID = 'ethz-wcms';
@@ -143,6 +144,71 @@ function extractMealsFromDay(dayData: any): Meal[] {
     return meals;
 }
 
+/**
+ * Every rota-based getter below hits the same `weeklyrotas` endpoint for a given
+ * facility and week. Next keys its fetch cache on URL *and* options, so passing a
+ * different `revalidate` per caller would defeat request memoization and fetch the
+ * same ~50KB payload once per caller. Keeping one URL builder and one revalidate
+ * value means a single upstream request per render.
+ */
+const ROTA_REVALIDATE = 300;
+
+function getWeekRange(date: string): { validAfter: string; validBefore: string } {
+    // Snap to the Monday of the requested week; the API returns the whole week.
+    const inputDate = new Date(date);
+    const day = inputDate.getDay();
+    const diff = inputDate.getDate() - day + (day === 0 ? -6 : 1);
+
+    const monday = new Date(inputDate);
+    monday.setDate(diff);
+    const nextMonday = new Date(monday);
+    nextMonday.setDate(monday.getDate() + 7);
+
+    return {
+        validAfter: monday.toISOString().split('T')[0],
+        validBefore: nextMonday.toISOString().split('T')[0]
+    };
+}
+
+/** Map a date to the API's day code (1=Mon, ..., 7=Sun). */
+function getApiDayCode(date: string): number {
+    const jsDay = new Date(date).getDay();
+    return jsDay === 0 ? 7 : jsDay;
+}
+
+/**
+ * Shared fetch for a facility's weekly rota. All rota-derived getters go through
+ * this so concurrent callers in one render share a single request.
+ *
+ * Wrapped in React's cache() rather than relying on fetch's automatic memoization:
+ * the callers sit in separate Suspense boundaries, and automatic memoization does
+ * not dedupe across them (measured — it still issued two upstream requests).
+ * cache() is per-request, so the header and the menu list share one round trip.
+ */
+const fetchWeeklyRota = cache(async function fetchWeeklyRota(
+    facilityId: number,
+    date: string,
+    lang: 'de' | 'en'
+): Promise<WeeklyRotaRaw | null> {
+    const { validAfter, validBefore } = getWeekRange(date);
+
+    const url = `${API_BASE}/weeklyrotas?client-id=${CLIENT_ID}&lang=${lang}&facility=${facilityId}&valid-after=${validAfter}&valid-before=${validBefore}&rs-first=0&rs-size=50`;
+
+    const res = await fetch(url, { next: { revalidate: ROTA_REVALIDATE } });
+    if (!res.ok) {
+        console.error(`Fetch weekly rota failed for facility ${facilityId}: ${res.status} ${res.statusText}`);
+        return null;
+    }
+
+    const text = await res.text();
+    if (!text) return null;
+
+    const data: WeeklyRotaResponseRaw = JSON.parse(text);
+    if (!data["weekly-rota-array"] || data["weekly-rota-array"].length === 0) return null;
+
+    return data["weekly-rota-array"][0];
+});
+
 export async function getDailyMenu(
     facilityId: number,
     date: string,
@@ -151,39 +217,10 @@ export async function getDailyMenu(
     if (!facilityId) return null;
 
     try {
-        // Calculate week range (API returns whole week, we filter to requested day)
-        const inputDate = new Date(date);
-        const day = inputDate.getDay();
-        const diff = inputDate.getDate() - day + (day === 0 ? -6 : 1);
-        const monday = new Date(inputDate);
-        monday.setDate(diff);
-        const nextMonday = new Date(monday);
-        nextMonday.setDate(monday.getDate() + 7);
+        const rawRota = await fetchWeeklyRota(facilityId, date, lang);
+        if (!rawRota) return null;
 
-        const validAfter = monday.toISOString().split('T')[0];
-        const validBefore = nextMonday.toISOString().split('T')[0];
-
-        const url = `${API_BASE}/weeklyrotas?client-id=${CLIENT_ID}&lang=${lang}&facility=${facilityId}&valid-after=${validAfter}&valid-before=${validBefore}&rs-first=0&rs-size=50`;
-
-        const res = await fetch(url, { next: { revalidate: 60 } });
-        if (!res.ok) {
-            console.error(`Fetch menu failed for facility ${facilityId}: ${res.status} ${res.statusText}`);
-            return null;
-        }
-
-        const text = await res.text();
-        if (!text) return null;
-
-        const data: WeeklyRotaResponseRaw = JSON.parse(text);
-
-        if (!data["weekly-rota-array"] || data["weekly-rota-array"].length === 0) return null;
-
-        const rawRota = data["weekly-rota-array"][0];
-
-        // Map input date to API day code (1=Mon, ..., 7=Sun)
-        const dateObj = new Date(date);
-        const jsDay = dateObj.getDay();
-        const apiDayCode = jsDay === 0 ? 7 : jsDay;
+        const apiDayCode = getApiDayCode(date);
 
         let meals: Meal[] = [];
         let dayOfWeekName = "Day";
@@ -218,46 +255,13 @@ export async function getWeeklyMenu(
     if (!facilityId) return null;
 
     try {
-        // Calculate the Monday and Sunday of the requested week
-        const inputDate = new Date(date);
-        const day = inputDate.getDay();
-        const diff = inputDate.getDate() - day + (day === 0 ? -6 : 1);
-
-        const monday = new Date(inputDate);
-        monday.setDate(diff);
-        const nextMonday = new Date(monday);
-        nextMonday.setDate(monday.getDate() + 7);
-
-        const validAfter = monday.toISOString().split('T')[0];
-        const validBefore = nextMonday.toISOString().split('T')[0];
-
-        console.log(`[getWeeklyMenu] Fetching for facility ${facilityId}, range: ${validAfter} to ${validBefore}`);
-
-        const url = `${API_BASE}/weeklyrotas?client-id=${CLIENT_ID}&lang=${lang}&facility=${facilityId}&valid-after=${validAfter}&valid-before=${validBefore}&rs-first=0&rs-size=50`;
-
-        const res = await fetch(url, { next: { revalidate: 300 } });
-        if (!res.ok) {
-            console.error(`[getWeeklyMenu] Fetch failed: ${res.status}`);
-            return null;
-        }
-
-        const text = await res.text();
-        if (!text) return null;
-
-        const data: WeeklyRotaResponseRaw = JSON.parse(text);
-
-        if (!data["weekly-rota-array"] || data["weekly-rota-array"].length === 0) {
-            console.log(`[getWeeklyMenu] No weekly rotas found.`);
-            return null;
-        }
-
-        const rawRota = data["weekly-rota-array"][0];
-        console.log(`[getWeeklyMenu] Rota found: ${rawRota["weekly-rota-id"]}, days: ${rawRota["day-of-week-array"]?.length}`);
+        const rawRota = await fetchWeeklyRota(facilityId, date, lang);
+        if (!rawRota) return null;
 
         const days: DayMenu[] = [];
 
         if (rawRota["day-of-week-array"]) {
-            const sortedDays = rawRota["day-of-week-array"].sort((a, b) =>
+            const sortedDays = [...rawRota["day-of-week-array"]].sort((a, b) =>
                 a["day-of-week-code"] - b["day-of-week-code"]
             );
 
@@ -286,11 +290,15 @@ export async function getWeeklyMenu(
     }
 }
 
+/**
+ * The plain ETH image URL. Resizing and format conversion happen in the
+ * next/image loader (src/lib/imageLoader.ts), which is the single place that
+ * builds wsrv.nl requests — wrapping here as well produced a double-encoded
+ * URL for every meal in the payload that the loader then had to unwrap.
+ */
 export function getImageUrl(imageId: number | undefined): string | null {
     if (!imageId) return null;
-    const originalUrl = `${API_BASE}/images/${imageId}?client-id=ethz-monitor&lang=de`;
-    // Wrap with wsrv.nl for image optimization (80% quality for mobile)
-    return `https://wsrv.nl/?url=${encodeURIComponent(originalUrl)}&q=80`;
+    return `${API_BASE}/images/${imageId}?client-id=ethz-monitor&lang=de`;
 }
 
 
@@ -305,35 +313,10 @@ export async function getOpeningHours(
     if (!facilityId) return [];
 
     try {
-        const inputDate = new Date(date);
-        const day = inputDate.getDay();
-        const diff = inputDate.getDate() - day + (day === 0 ? -6 : 1);
-        const monday = new Date(inputDate);
-        monday.setDate(diff);
-        const nextMonday = new Date(monday);
-        nextMonday.setDate(monday.getDate() + 7);
+        const rawRota = await fetchWeeklyRota(facilityId, date, lang);
+        if (!rawRota) return [];
 
-        const validAfter = monday.toISOString().split('T')[0];
-        const validBefore = nextMonday.toISOString().split('T')[0];
-
-        const url = `${API_BASE}/weeklyrotas?client-id=${CLIENT_ID}&lang=${lang}&facility=${facilityId}&valid-after=${validAfter}&valid-before=${validBefore}&rs-first=0&rs-size=50`;
-
-        const res = await fetch(url, { next: { revalidate: 43200 } });
-        if (!res.ok) return [];
-
-        const text = await res.text();
-        if (!text) return [];
-
-        const data: WeeklyRotaResponseRaw = JSON.parse(text);
-        if (!data["weekly-rota-array"] || data["weekly-rota-array"].length === 0) return [];
-
-        const rawRota = data["weekly-rota-array"][0];
-
-        // Map input date to API day code
-        const dateObj = new Date(date);
-        const jsDay = dateObj.getDay();
-        const apiDayCode = jsDay === 0 ? 7 : jsDay;
-
+        const apiDayCode = getApiDayCode(date);
         const openingHours: import('@/types/eth').OpeningHours[] = [];
 
         if (rawRota["day-of-week-array"]) {

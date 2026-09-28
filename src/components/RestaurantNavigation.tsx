@@ -2,11 +2,11 @@
 
 import { useState, useMemo, useEffect, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Facility } from '@/types/eth';
+import { FacilityNavItem } from '@/types/eth';
 import styles from './RestaurantNavigation.module.css';
 
 interface RestaurantNavigationProps {
-    facilities: Facility[];
+    facilities: FacilityNavItem[];
     selectedFacilityId: number;
 }
 
@@ -79,7 +79,7 @@ export default function RestaurantNavigation({ facilities, selectedFacilityId }:
             if (!acc[loc]) acc[loc] = [];
             acc[loc].push(facility);
             return acc;
-        }, {} as Record<string, Facility[]>);
+        }, {} as Record<string, FacilityNavItem[]>);
 
         // Sort each group
         Object.keys(grouped).forEach(loc => {

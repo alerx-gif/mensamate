@@ -205,6 +205,14 @@
     border-radius: 8px;
 }
 
+/* Lunch/dinner windows nested under the "Open" row. Outlined rather than
+   filled so they read as sub-rows, using theme tokens so they follow dark mode. */
+.mealTimeRow {
+    margin-top: 4px;
+    background: transparent;
+    border: 1px solid var(--gray-bg);
+}
+
 .mealTimeName {
     font-weight: 500;
     color: var(--text-color);
